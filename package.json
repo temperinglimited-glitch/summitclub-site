@@ -1,0 +1,15 @@
+{
+  "name": "summit-club-booking",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Summit Club website with direct bookings and Stripe Checkout",
+  "engines": { "node": ">=24.13.0 <25" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/main.mjs",
+    "test": "node --test test/*.test.mjs",
+    "admin-token": "node -e \"console.log(require('node:crypto').randomBytes(32).toString('base64url'))\"",
+    "backup": "node --env-file-if-exists=.env server/backup.mjs",
+    "sync-preview": "node scripts/sync-preview.mjs",
+    "build:cloudflare": "node scripts/build-cloudflare.mjs"
+  }
+}

@@ -1,0 +1,10 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import pricing from '../public/assets/pricing.js';
+const settings = pricing.validateSettings(JSON.parse(readFileSync(new URL('../config/pricing.json', import.meta.url), 'utf8')));
+const file = new URL('../public/index.html', import.meta.url);
+const html = readFileSync(file, 'utf8');
+const marker = /<script>window\.SUMMIT_BOOKING_DEFAULTS=[\s\S]*?;<\/script>/;
+if (!marker.test(html)) throw new Error('The embedded preview settings could not be located.');
+const encoded = JSON.stringify(settings).replaceAll('<', '\\u003c');
+writeFileSync(file, html.replace(marker, () => '<script>window.SUMMIT_BOOKING_DEFAULTS=' + encoded + ';</script>'));
+console.log('Updated the embedded offline preview settings. The server uses its saved database settings.');

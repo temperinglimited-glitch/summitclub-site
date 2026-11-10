@@ -1,0 +1,58 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Summit Club · Owner</title><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/booking.css"><script defer src="assets/pricing.js"></script><script defer src="assets/admin.js"></script></head>
+<body><main class="owner-page">
+  <p class="label">Summit Club · Owner</p><h1>Your lodges, in one place.</h1>
+  <p><a href="index.html">View website</a></p>
+  <form id="owner-login" class="owner-panel"><label class="booking-field">Owner access password<input type="password" id="owner-password" autocomplete="current-password" required minlength="32"></label><button class="btn dark">Sign in</button></form>
+  <p class="owner-status" id="owner-status" role="status"></p>
+  <div id="owner-content" hidden>
+    <p><button class="btn" type="button" id="owner-refresh">Refresh</button> <button class="btn" type="button" id="owner-reconcile">Check payments &amp; retry emails</button> <button class="btn" type="button" id="owner-signout">Sign out</button></p>
+    <section class="owner-panel"><h2>Rates &amp; extras</h2>
+      <form id="owner-prices">
+        <div class="owner-grid" id="owner-rate-fields"></div>
+        <div class="owner-grid" style="margin-top:20px">
+          <label>Opening date<input type="date" id="owner-opening" required></label>
+          <label>Lodge 1 name<input id="owner-lodge-one" maxlength="60" required></label>
+          <label>Lodge 2 name<input id="owner-lodge-two" maxlength="60" required></label>
+        </div>
+        <label class="booking-field" style="margin-top:20px">Special peak periods<textarea id="owner-peak" rows="4" placeholder="2027-02-11 to 2027-02-15"></textarea><span>One range per line: first night to departure date. Summer July and August are always peak.</span></label>
+        <div class="owner-grid">
+          <label>Booking terms URL<input type="url" id="owner-terms-url" required></label>
+          <label>Privacy notice URL<input type="url" id="owner-privacy-url" required></label>
+          <label>Terms version<input id="owner-terms-version" maxlength="80" required></label>
+        </div>
+        <label class="owner-check"><input type="checkbox" id="owner-approved">I have reviewed the prices, guest rules, extras and policy links for accepting real bookings.</label>
+        <button class="btn dark" type="submit">Save settings</button>
+      </form>
+    </section>
+    <section class="owner-panel"><h2>Block dates</h2>
+      <form id="owner-block"><div class="owner-grid">
+        <label>Lodge<select id="block-lodge" required></select></label>
+        <label>First night<input type="date" id="block-from" required></label>
+        <label>Departure / available again<input type="date" id="block-to" required></label>
+        <label>Reason<input id="block-note" maxlength="200" value="Owner use" required></label>
+      </div><p style="margin-top:20px"><button class="btn dark">Block dates</button></p></form>
+    </section>
+    <section class="owner-panel"><h2>Daily prices &amp; one-bedroom dates</h2>
+      <p class="booking-help">Choose the bedroom option below, then click a day to edit it. You can also enter a date range and apply the price to both lodges. One-bedroom stays are closed until you enter a price for their dates.</p>
+      <div class="owner-grid" style="margin:20px 0">
+        <label>Calendar lodge<select id="owner-calendar-lodge"></select></label>
+        <label>Month<input type="month" id="owner-calendar-month"></label>
+      </div>
+      <div class="owner-price-calendar" id="owner-price-calendar" aria-label="Daily price calendar"></div>
+      <p class="booking-help" id="owner-calendar-note" role="status"></p>
+      <form id="owner-override"><div class="owner-grid">
+        <label>Lodge<select id="override-lodge" required></select></label>
+        <label>Bedroom option<select id="override-bedrooms"><option value="2">Two bedrooms</option><option value="1">One bedroom · maximum two guests</option></select></label>
+        <label>First night<input type="date" id="override-from" required></label>
+        <label>Departure / end of override<input type="date" id="override-to" required></label>
+        <label>Nightly base rate in £<input type="number" id="override-price" min="1" step=".01" placeholder="Blank restores / closes"></label>
+      </div><p style="margin-top:20px"><button class="btn dark">Save daily prices</button></p></form>
+      <p class="booking-help" style="margin-top:12px">Two bedrooms: entering a price replaces the seasonal base and weekend supplement; blank restores the seasonal rate. One bedroom: entering a price opens those dates at that rate; blank closes the one-bedroom option. Guest supplements and extras are added separately. Existing reservations keep their agreed prices.</p>
+      <p id="override-count" class="booking-help"></p>
+    </section>
+    <section class="owner-panel"><h2>Bookings &amp; blocked dates</h2>
+      <div class="owner-table-wrap"><table class="owner-table"><thead><tr><th>Status</th><th>Lodge &amp; stay</th><th>Guest</th><th>Details</th><th>Total</th><th>Action</th></tr></thead><tbody id="owner-bookings"></tbody></table></div>
+    </section>
+    <section class="owner-panel"><h2>Confirmation emails</h2><p class="booking-help">Emails stay queued while delivery is switched off. Configure the email service before accepting live payments.</p><div id="owner-outbox" class="booking-help" style="margin-top:16px"></div></section>
+  </div>
+</main></body></html>

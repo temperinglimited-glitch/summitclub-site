@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Summit Club</title>
+<link rel="stylesheet" href="assets/booking.css">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:wght@300;400&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Montserrat:wght@500;600&amp;display=swap">
+<style>
+/* Layout: a dark, cinematic gallery: near-black ground, full-bleed photographs, big light serif, brass-coloured labels. One photograph per screen, one serif voice set large, wide margins, thin rules and square buttons. The pictures make the case; the words stay out of the way. Single deliberate dark look, set explicitly. */
+:root{
+  --paper:#121812; --paper-2:#1A221A; --ink:#EEEBE3; --soft:#A7AB9C; --rule:#2C362C;
+  --pine:#0C110C; --on-pine:#EEEBE3; --on-pine-soft:#BDBFB2; --peat:#D2B78F; --peat-lt:#D2B78F; --flag:#B5651D;
+  --f-display:'Newsreader',Georgia,'Times New Roman',serif;
+  --f-body:'Source Sans 3','Helvetica Neue',Arial,sans-serif;
+  --f-label:'Montserrat','Helvetica Neue',Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.65;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--pine)}
+img,video{max-width:100%;display:block}
+p{margin:0} a{color:inherit}
+h1,h2,h3{margin:0;font-family:var(--f-display);font-weight:300;line-height:1.08;letter-spacing:-0.01em;text-wrap:balance}
+:focus-visible{outline:2px solid var(--peat-lt);outline-offset:3px}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.label{font-family:var(--f-label);font-size:11px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--peat)}
+.flag{display:inline-block;font-family:var(--f-label);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--flag);padding:.15em .55em;border-radius:2px;vertical-align:.15em}
+.draft{position:fixed;left:0;right:0;bottom:0;z-index:40;padding-bottom:calc(7px + env(safe-area-inset-bottom,0px)) !important;background:var(--flag);color:#fff;font-family:var(--f-label);font-size:12px;font-weight:500;text-align:center;padding-block:7px;padding-inline:16px}
+.draft a{color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;font-family:var(--f-label);font-size:11.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer}
+.btn.solid{background:#EEEBE3;border-color:#EEEBE3;color:#121812}
+.btn.dark{background:#D2B78F;border-color:#D2B78F;color:#121812}
+.btn:hover{opacity:.85}
+.ridge{display:block;width:100%;color:currentColor}
+
+/* nav */
+.nav{position:absolute;inset:0 0 auto;z-index:20;color:var(--on-pine);transition:background .3s}
+.nav.solid{position:fixed;background:var(--pine);top:env(safe-area-inset-top,0px)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:76px}
+.nav img{height:26px;width:auto}
+.nav ul{display:flex;gap:34px;list-style:none;margin:0;padding:0;font-family:var(--f-label);font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
+.nav ul a{text-decoration:none}
+@media (max-width:900px){.nav ul{display:none}}
+
+/* hero */
+.hero{position:relative;height:min(100svh,980px);min-height:560px;color:var(--on-pine);overflow:hidden;background:var(--pine)}
+.hero img{width:100%;height:100%;object-fit:cover;object-position:30% 50%}
+.hero .hs{position:absolute;inset:0;opacity:0;transition:opacity 1.8s ease}
+.hero .hs.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.hero .hs{transition:none}}
+@media (min-width:900px){.hero .hs.d1{left:-35%;width:135%;max-width:none}}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(18,24,18,.5),transparent 24%),linear-gradient(270deg,rgba(18,24,18,.62),rgba(18,24,18,.15) 50%,transparent 70%),linear-gradient(transparent 55%,rgba(18,24,18,.55))}
+.hero .copy{position:absolute;z-index:2;left:0;right:0;bottom:clamp(48px,8vw,104px)}
+.hero .copy .wrap{display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:22px}
+.hero h1{font-size:clamp(46px,7vw,104px);max-width:11ch}
+.hero .where{font-family:var(--f-label);font-size:11px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--on-pine-soft)}
+@media (max-width:700px){.hero img{object-position:22% 50%}.hero::after{background:linear-gradient(transparent 30%,rgba(18,24,18,.75))}.hero .copy .wrap{align-items:flex-start;text-align:left}}
+
+/* intro */
+.intro{padding-block:clamp(110px,15vw,200px);text-align:center}
+.intro p.big{font-family:var(--f-display);font-weight:300;font-size:clamp(30px,3.6vw,50px);line-height:1.22;max-width:24ch;margin:26px auto 0;text-wrap:balance}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));max-width:1000px;margin:clamp(64px,8vw,96px) auto 0;border-top:1px solid var(--rule)}
+.facts div{padding:24px 12px 0;text-align:center}
+.facts b{display:block;font-family:var(--f-display);font-weight:300;font-size:clamp(30px,3vw,42px);line-height:1}
+.facts span{display:block;margin-top:10px;font-size:14px;color:var(--soft)}
+@media (max-width:700px){.facts{grid-template-columns:1fr 1fr;row-gap:28px}}
+
+/* full-bleed photographs */
+.bleed{margin:0;position:relative}
+.bleed img{width:100%;height:clamp(420px,72vw,920px);object-fit:cover}
+.bleed figcaption{position:absolute;left:0;right:0;bottom:22px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#F2EFE8;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+
+/* sections */
+section{padding-block:clamp(100px,13vw,180px)}
+.head{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:48px;align-items:end}
+.head h2{font-size:clamp(40px,5.4vw,76px);margin-top:18px}
+.head p{color:var(--soft);max-width:46ch;font-size:19px}
+@media (max-width:860px){.head{grid-template-columns:1fr;gap:20px}}
+
+/* cabins */
+.cabin{margin:0;display:block;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(32px,5vw,80px);align-items:start;margin-top:clamp(56px,7vw,96px)}
+.cabin img{width:100%;aspect-ratio:16/9;object-fit:cover}
+.cabin .side{display:flex;flex-direction:column;gap:22px;padding-top:4px}
+.cabin .side p{color:var(--soft)}
+.details{list-style:none;margin:8px 0 0;padding:0;border-top:1px solid var(--rule)}
+.details li{padding:14px 0;border-bottom:1px solid var(--rule);font-size:16px}
+.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+.gallery figure{margin:0}
+.gallery img{width:100%;aspect-ratio:3/4;object-fit:cover}
+.gallery figcaption{margin-top:12px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+@media (max-width:860px){.cabin{grid-template-columns:1fr}.gallery{grid-template-columns:1fr 1fr}.gallery figure:last-child{grid-column:span 2}.gallery figure:last-child img{aspect-ratio:16/10}}
+
+/* hills */
+.hills-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:clamp(56px,7vw,96px)}
+.hills-grid figure{margin:0}
+.hills-grid img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.hills-grid figcaption{margin-top:12px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+.pair figure{margin:0}
+.pair img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:16px}
+.four figure{margin:0}
+.four img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
+.four figcaption{margin-top:12px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+.label.more{margin-top:clamp(40px,5vw,64px)}
+@media (max-width:760px){.four{grid-template-columns:1fr 1fr}}
+.base{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+.base figure{margin:0}
+.base img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
+.base figure.wide{grid-column:span 2}
+.base figure.wide img{aspect-ratio:auto;height:100%;max-height:none}
+.base figure.wide{display:flex;flex-direction:column}
+.base figure.wide img{flex:1;min-height:0}
+.base figcaption{margin-top:12px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+@media (max-width:760px){.base{grid-template-columns:1fr 1fr}.base figure.wide{grid-column:span 2}.base figure.wide img{aspect-ratio:4/3;height:auto}}
+.adv{margin:clamp(56px,7vw,96px) 0 0}
+.adv img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.adv figcaption{margin-top:12px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+@media (max-width:760px){.adv img{aspect-ratio:4/3}}
+.car{margin-top:16px}
+.car-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.car-track::-webkit-scrollbar{display:none}
+.car-track figure{flex:0 0 calc((100% - 32px)/3);margin:0;scroll-snap-align:start}
+.car-track img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
+.car-track figcaption{margin-top:12px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+.car-nav{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.car-btn{width:48px;height:48px;border:1px solid var(--rule);background:transparent;color:var(--ink);font-size:18px;cursor:pointer}
+.car-btn:hover{border-color:var(--soft)}
+@media (max-width:760px){.car-track figure{flex-basis:80%}}
+.legal{display:flex;gap:20px;flex-wrap:wrap;padding-block:0 32px;font-size:13px}
+.legal a,.legal button{color:var(--on-pine-soft);background:none;border:0;padding:0;font:inherit;text-decoration:underline;cursor:pointer}
+dialog.cookies{max-width:520px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:28px}
+dialog.cookies::backdrop{background:rgba(0,0,0,.6)}
+dialog.cookies p{margin:0 0 14px;color:var(--soft);font-size:15px}
+
+.pair figcaption{margin-top:12px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+.note{margin-top:18px;font-size:13px;color:var(--soft)}
+@media (max-width:760px){.hills-grid{grid-template-columns:1fr 1fr}.hills-grid figure:first-child{grid-column:span 2}}
+
+/* detail */
+.base figure.wide img{aspect-ratio:8/5!important;height:auto!important;flex:none!important}
+.detail{background:var(--pine);color:var(--on-pine)}
+.detail .label{color:var(--peat-lt)}
+.detail .head p{color:var(--on-pine-soft)}
+.dgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:clamp(180px,20vw,300px);gap:16px;margin-top:clamp(48px,6vw,80px)}
+.dgrid figure{margin:0;display:flex;flex-direction:column;min-height:0}
+.dgrid img{flex:1;min-height:0;width:100%;object-fit:cover;display:block}
+.dgrid .tall{grid-row:span 2}
+.dgrid .wide{grid-column:span 2}
+.dgrid figcaption{margin-top:10px;font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--on-pine-soft)}
+.dlist{margin-top:clamp(56px,7vw,96px);max-width:760px}
+.dlist .details{border-color:rgba(255,255,255,.18)}
+.dlist .details li{border-color:rgba(255,255,255,.18)}
+@media (max-width:760px){.dgrid{grid-template-columns:1fr 1fr;grid-auto-rows:220px}.dgrid .wide{grid-column:span 2}}
+/* passport */
+.passport{background:var(--pine);color:var(--on-pine)}
+.passport .label{color:var(--peat-lt)}
+.passport .inner{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(40px,6vw,96px);align-items:center}
+.passport img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.passport h2{font-size:clamp(38px,4.6vw,64px);margin-top:18px}
+.passport p.body{margin-top:24px;color:var(--on-pine-soft);max-width:44ch}
+@media (max-width:860px){.passport .inner{grid-template-columns:1fr}}
+
+/* legend */
+.legend{text-align:center}
+.legend blockquote{margin:30px auto 0;max-width:26ch;font-family:var(--f-display);font-style:italic;font-weight:300;font-size:clamp(28px,3.4vw,44px);line-height:1.3}
+.legend img{width:100%;max-width:1100px;aspect-ratio:16/9;object-fit:cover;margin:clamp(56px,7vw,88px) auto 0}
+.legend .small{margin-top:18px;font-size:13px;color:var(--soft)}
+
+/* story */
+.story{border-top:1px solid var(--rule)}
+.story .inner{max-width:760px;margin:0 auto;text-align:center}.story p.body{margin-left:auto;margin-right:auto}
+.story img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.story h2{font-size:clamp(36px,4.2vw,58px);margin-top:18px}
+.story p.body{margin-top:22px;color:var(--soft);max-width:46ch}
+.story .sig{margin-top:22px;font-family:var(--f-display);font-style:italic;font-size:22px}
+@media (max-width:860px){.story .inner{grid-template-columns:1fr}}
+
+/* book */
+.book{background:var(--paper-2)}
+.rates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:clamp(48px,6vw,80px);border-top:1px solid var(--peat)}
+.rate{padding:28px 24px 0 0}
+.rate .when{font-family:var(--f-label);font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--peat)}
+.rate b{display:block;margin-top:14px;font-family:var(--f-display);font-weight:300;font-size:clamp(48px,5.4vw,76px);line-height:1;font-variant-numeric:tabular-nums}
+.rate span{display:block;margin-top:8px;font-size:15px;color:var(--soft)}
+.terms{margin-top:28px;font-size:15px;color:var(--soft)}
+.book-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:56px;margin-top:clamp(56px,7vw,88px);padding-top:40px;border-top:1px solid var(--rule)}
+.book-actions > div{min-width:0}
+.book-actions h3{font-size:30px}
+.book-actions p{margin-top:12px;font-size:16px;color:var(--soft)}
+.signup{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.signup input{flex:1;min-width:0;min-height:48px;font:inherit;font-size:16px;padding:0 16px;border:1px solid var(--soft);background:var(--paper);color:var(--ink);border-radius:0}
+.ok{margin-top:10px;font-size:14px;color:var(--peat)}
+@media (max-width:760px){.rates,.book-actions{grid-template-columns:1fr}.book-actions{gap:40px}}
+
+/* faq */
+.faq-sec{padding-block:clamp(80px,10vw,140px)}
+.faq{display:grid;grid-template-columns:1fr 1fr;gap:0 56px;margin-top:40px}
+.faq details{border-top:1px solid var(--rule);padding:20px 0}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;font-family:var(--f-display);font-size:22px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--peat)}
+.faq details[open] summary::after{content:"–"}
+.faq details p{margin-top:10px;font-size:16px;color:var(--soft)}
+@media (max-width:760px){.faq{grid-template-columns:1fr}}
+
+footer{background:var(--pine);color:var(--on-pine-soft);font-size:14px}
+footer .ridge{color:var(--peat-lt);height:clamp(60px,9vw,120px);padding-top:48px}
+footer .row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-block:36px}
+footer .row img{height:26px;width:auto;align-self:flex-start}
+footer dl{margin:0;display:flex;gap:28px;flex-wrap:wrap}
+footer dt{font-family:var(--f-label);font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--peat-lt)}
+footer dd{margin:4px 0 0;color:var(--on-pine)}
+/* date picker */
+dialog.dates{border:0;padding:0;width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 32px);background:var(--paper);color:var(--ink);border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog.dates::backdrop{background:rgba(20,28,20,.6)}
+.dp{padding:clamp(20px,4vw,36px)}
+.dp-top{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.dp-top h2{font-size:clamp(26px,3vw,34px);font-weight:300}
+.dp-x{font:inherit;font-size:28px;line-height:1;background:none;border:0;cursor:pointer;color:var(--ink);width:44px;height:44px}
+.dp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.dp-nav button{font:inherit;background:none;border:1px solid var(--rule);border-radius:999px;width:44px;height:44px;cursor:pointer;color:var(--ink)}
+.dp-nav button:disabled{opacity:.35;cursor:default}
+.dp-month{font-family:var(--f-display);font-size:22px}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:14px}
+.dp-dow{font-family:var(--f-label);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);text-align:center;padding-bottom:4px}
+.dp-day{font:inherit;min-height:56px;border:1px solid var(--rule);background:#fff;border-radius:3px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink);padding:4px 0}
+.dp-day b{font-weight:600;font-size:15px}
+.dp-day span{font-size:11px;color:var(--soft)}
+.dp-day:disabled{background:transparent;border-color:transparent;color:#B3AE9F;cursor:default;text-decoration:line-through}
+.dp-day:disabled span{visibility:hidden}
+.dp-day.in{background:#E3E7DC;border-color:#C7CFBD}
+.dp-day.end{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.dp-day.end span{color:#DCD8CC}
+.dp-sum{margin-top:20px;padding-top:18px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.dp-sum p{font-size:16px}
+.dp-note{margin-top:14px;font-size:13px;color:var(--soft)}
+@media (max-width:520px){.dp-day{min-height:48px}.dp-day span{font-size:10px}}
+
+.dp-day{background:#1A221A;color:#EEEBE3}.dp-day.in{background:#2C3A2C;border-color:#3A4A3A}.dp-day.end{background:#D2B78F;border-color:#D2B78F;color:#121812}.dp-day.end span{color:#3A3020}
+</style>
+
+
+<nav class="nav" id="nav" aria-label="Main">
+  <div class="wrap">
+    <a href="#top" aria-label="Summit Club home"><img src="images/summit-club-logo.png" alt="Summit Club"></a>
+    <ul>
+      <li><a href="#cabins">The cabins</a></li>
+      <li><a href="#hills">The hills</a></li>
+      <li><a href="#book">Rates</a></li>
+    </ul>
+    <button type="button" class="btn" data-open-dates="">Check dates</button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <img class="hs d1 on" src="images/cabin-dusk-path.jpg" alt="A Summit Club cabin at dusk, its doorway lit gold, a gravel path curving up to it" style="object-position:38% 60%">
+  <img class="hs" src="images/cabin-exterior.jpg" alt="A Summit Club cabin in black cladding under a clear sky, warm light round the glass doors" style="object-position:50% 40%">
+  <img class="hs" src="images/cabin-night-front.jpg" alt="A Summit Club cabin at night, the living room lit up behind the glass doors" style="object-position:50% 55%">
+  <div class="copy">
+    <div class="wrap">
+      <p class="where">Clontafleece · Mourne Mountains</p>
+      <h1>A proper base for proper adventures</h1>
+      <button type="button" class="btn solid" data-open-dates="">Check dates</button>
+    </div>
+  </div>
+</header>
+
+<section class="intro" id="intro">
+  <div class="wrap">
+    <p class="label">Summit Club</p>
+    <p class="big">Two cabins in open fields between the Mournes and the Cooleys. Built for four, with the view in every window.</p>
+    <div class="facts">
+      <div><b>2</b><span>cabins, set well apart</span></div>
+      <div><b>4 + 1</b><span>sleeps four, plus a child</span></div>
+      <div><b>2</b><span>en-suite bedrooms each</span></div>
+      <div><b>2</b><span>mountain ranges in view</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="cabins">
+  <div class="wrap">
+    <div class="head">
+      <div><p class="label">A proper base</p><h2>Space, not a squeeze.</h2></div>
+      <p>Two bedrooms, each with its own shower room, set apart from the living space. Big windows everywhere, so the hills come inside.</p>
+    </div>
+    <figure class="cabin"><img src="images/living-room-hills.jpg" alt="Living room with a green sofa and woven pendant light, a tall glass door onto green hills" style="object-position:57% 50%"></figure>
+    <div class="base">
+      <figure><img src="images/dining-table-view.jpg" alt="Oak table with two mugs, the sofa and a tall window onto a green hill" style="object-position:50% 55%"><figcaption>Supper with a view</figcaption></figure>
+      <figure><img src="images/king-bedroom.jpg" alt="Bedroom one made up as a king, white striped linen against the slatted headboard" style="object-position:100% 50%"><figcaption>Bedroom one, as a king</figcaption></figure>
+      <figure><img src="images/twin-bedroom.jpg" alt="The same bedroom made up as two single beds, a green throw across one" style="object-position:100% 50%"><figcaption>Or as two singles</figcaption></figure>
+      <figure class="wide"><img src="images/second-bedroom.jpg" alt="Bedroom two with the lit headboard and a green wool throw" style="object-position:50% 55%"><figcaption>Bedroom two, lights on</figcaption></figure>
+      <figure><img src="images/kitchen-dining.jpg" alt="Kitchen and oak dining table beside a glass door onto the field" style="object-position:68% 50%"><figcaption>A proper kitchen</figcaption></figure>
+      <figure><img src="images/sofa-kitchen.jpg" alt="The green sofa with the kitchen and table behind" style="object-position:45% 60%"><figcaption>Room to spread out</figcaption></figure>
+      <figure class="wide"><img src="images/living-room-night.jpg" alt="The living room at night: woven pendant lit, sofa, glass doors onto the dark garden" style="object-position:50% 50%"><figcaption>Evenings in</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="detail" id="detail">
+  <div class="wrap">
+    <div class="head">
+      <div><p class="label">The detail</p><h2>Hotel-grade, down to the taps.</h2></div>
+      <p>Beds dressed in crisp hotel linen over Respa mattresses, a Mourne Textiles throw folded at the foot. Brass rain showers set into deep green tile. Acoustic panelling to quieten the evening. Each detail chosen for the moment you come in off the hill.</p>
+    </div>
+    <div class="dgrid">
+      <figure class="tall"><img src="images/brass-rain-shower.jpg" alt="Brass rain shower head on green vertical tile" style="object-position:50% 40%"><figcaption>A power shower in each shower room</figcaption></figure>
+      <figure><img src="images/white-pillows.jpg" alt="Crisp white pillows against the slatted headboard, the window above" style="object-position:50% 55%"><figcaption>Respa mattresses, hotel linen</figcaption></figure>
+      <figure><img src="images/bathroom-mirror.jpg" alt="Lit mirror, brass tap and green tile in the shower room" style="object-position:50% 45%"><figcaption>Lit mirrors, green tile</figcaption></figure>
+      <figure><img src="images/brass-hand-shower.jpg" alt="Brass hand shower on green tile" style="object-position:50% 50%"><figcaption>A hand shower too</figcaption></figure>
+      <figure class="wide"><img src="images/towels-green-throw.jpg" alt="Folded towels on the bed beside a green Mourne Textiles throw" style="object-position:50% 60%"><figcaption>Mourne Textiles throws</figcaption></figure>
+      <figure><img src="images/rattan-pendant.jpg" alt="Woven rattan pendant light, the kitchen and window behind" style="object-position:50% 30%"><figcaption>Woven pendant, warm light</figcaption></figure>
+      <figure><img src="images/coffee-machine.jpg" alt="Coffee pouring into a black mug from the pod machine" style="object-position:50% 55%"><figcaption>Coffee on</figcaption></figure>
+      <figure><img src="images/brass-towel-rail.jpg" alt="Brass towel rail on green tile in the shower room" style="object-position:50% 40%"><figcaption>Brass towel rails</figcaption></figure>
+      <figure class="wide"><img src="images/slatted-hidden-door.jpg" alt="A wall of dark acoustic slats with a built-in shelf and a hidden door" style="object-position:50% 45%"><figcaption>Acoustic panelling</figcaption></figure>
+    </div>
+    <div class="dlist">
+      <p class="label">What family and group cabins usually go without</p>
+        <ul class="details">
+          <li>Hotel-grade Respa mattresses on zip-and-lock beds: a king-size or two singles in each bedroom</li>
+          <li>Hotel-grade linen, and Mourne Textiles throws</li>
+          <li>A full kitchen: oven and hob, dishwasher, fridge, pod coffee machine and toaster</li>
+          <li>A power shower in each shower room</li>
+          <li>Acoustic panelling, which softens the sound inside</li>
+          <li>Sofa bed for children, <span id="page-sofa-list-price">£30</span> per booking; reserve in advance</li>
+        </ul>
+    </div>
+  </div>
+</section>
+
+<figure class="bleed">
+  <img src="images/mourne-wall.jpg" alt="The Mourne Wall running straight up the hillside beside a gravel path, blue sky and cloud" style="object-position:50% 62%">
+  <figcaption class="wrap">The Mourne Wall</figcaption>
+</figure>
+
+<section id="hills">
+  <div class="wrap">
+    <div class="head">
+      <div><p class="label">Proper adventures</p><h2>Then head for the hills.</h2></div>
+      <p>Granite tops in the high Mournes, forest trails in Kilbroney Park, the Big Stone on Slieve Martin, and Carlingford Lough with the Cooleys across the water.</p>
+    </div>
+    <figure class="adv"><img src="images/rock-arms-raised.jpg" alt="A small figure on a rock with arms raised, backlit, facing the fields and hills" style="object-position:50% 60%"><figcaption>Out the door, onto the rock</figcaption></figure>
+    <div class="hills-grid">
+      <figure><img src="images/mourne-reservoir.jpg" alt="Looking down a high valley to a reservoir, dark peaks on one side and the sea beyond"><figcaption>The high Mournes</figcaption></figure>
+      <figure><img src="images/heather-reservoir.jpg" alt="Heather in flower running down a valley to a dam, cloud lifting off the peaks"><figcaption>Into the heather</figcaption></figure>
+      <figure><img src="images/rock-group-sunset.jpg" alt="A group in silhouette on top of a big rock at last light, one with arms raised" style="object-position:50% 40%"><figcaption>Last light on the rock</figcaption></figure>
+    </div>
+    <div class="pair">
+      <figure><img src="images/children-mourne-wall.jpg" alt="Three children sitting on a granite wall, the high Mournes behind"><figcaption>A rest on the granite</figcaption></figure>
+      <figure><img src="images/walker-granite-boulder.jpg" alt="A walker sitting on top of a granite boulder, a pointed peak and heather behind" style="object-position:50% 50%"><figcaption>Under the peak</figcaption></figure>
+    </div>
+    <div class="pair">
+      <figure><img src="images/map-mug-sofa.jpg" alt="A mug and a map on the sofa, the patio doors and the big rock beyond" style="object-position:50% 55%"><figcaption>Plan tomorrow</figcaption></figure>
+      <figure><img src="images/wellies-welcome.jpg" alt="A muddy welly by the HELLO mat at the cabin door" style="object-position:50% 60%"><figcaption>Back in, boots off</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="legend" id="legend">
+  <div class="wrap">
+    <p class="label">Roscaire and Finn</p>
+    <blockquote>Finn, the giant of summer, hurled a boulder from Slieve Foy at Roscaire, the giant of winter, and buried him on Slieve Martin. The stone is still there. Our lodges carry their names: Lodge 1 is Roscaire, and Lodge 2 is Finn.</blockquote>
+    <img src="images/big-stone-lough.jpg" alt="Someone standing on top of the Big Stone above Carlingford Lough">
+    <p class="small">The Cloughmore, or Big Stone, above Rostrevor. Legend from <a href="https://en.wikipedia.org/wiki/Slieve_Foy" target="_blank" rel="noopener">Slieve Foy, Wikipedia</a>.</p>
+  </div>
+</section>
+
+<section class="story" id="story">
+  <div class="wrap">
+    <div class="inner">
+      <div>
+        <p class="label">Our story</p>
+        <h2>We built the place we wanted to stay in.</h2>
+        <p class="body">We've spent years walking the Mournes, and now our kids come with us. But as a family of five, a trip away usually meant nights holed up in hotel rooms, with nowhere to make a supper or a sandwich. So when we built Summit Club, we built the place we'd wanted on all those trips.</p>
+        <p class="sig">Catrióna &amp; Jonny</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<figure class="bleed">
+  <img src="images/cabin-night-banks.jpg" alt="A Summit Club cabin lit from inside at night, grassy banks either side and a few stars overhead" style="object-position:50% 55%">
+  <figcaption><div class="in">Lights on. The kettle's on too.</div></figcaption>
+</figure>
+
+<section class="book" id="book">
+  <div class="wrap">
+    <div class="head">
+      <div><p class="label">Rates</p><h2>Best rates, booked direct.</h2></div>
+      <p id="page-rate-description">Starting nightly rates for two guests. Choose your dates, party size and extras for a full quote. Cleaning included.</p>
+    </div>
+    <div class="rates">
+      <div class="rate"><p class="when">Winter</p><b data-base-rate="winterPence">£250</b><span>per night</span></div>
+      <div class="rate"><p class="when">Most of the year</p><b data-base-rate="standardPence">£360</b><span>per night</span></div>
+      <div class="rate"><p class="when">Summer and school holidays</p><b data-base-rate="peakPence">£420</b><span>per night</span></div>
+    </div>
+    <p class="booking-draft-rates" id="page-pricing-note">Draft prices for review. Guest supplements and hamper prices are illustrative.</p>
+    <div class="book-actions">
+      <div><h3>Stays from December</h3><p>Explore your stay from December. Choose a lodge, dates and guest numbers, then add the little extras.</p><p style="margin-top:20px"><button type="button" class="btn dark" data-open-dates="">Check dates</button></p></div>
+      <div><h3>Join the club</h3><p>First pick of the opening dates, before they go anywhere else. We only email when there's something worth saying.</p>
+        <form class="signup" id="signup"><label for="email" style="position:absolute;left:-9999px">Email address</label><input id="email" type="email" required="" placeholder="Your email address" autocomplete="email"><button class="btn dark" type="submit">Join the club</button></form>
+        <p class="ok" id="ok" hidden="">Thanks. Your email app should open with the message ready to send.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-sec" id="faq">
+  <div class="wrap">
+    <p class="label">Before you book</p>
+    <div class="faq">
+      <details open=""><summary>How many people can stay?</summary><p>Up to four adults per cabin; children cannot be added to a four-adult booking. Families of two adults and three children can stay using the sofa bed. The sofa bed is for children only and must be reserved in advance for <span id="page-sofa-price">£30</span> per booking, plus any additional guest charges shown in your quote. Book both cabins for bigger groups.</p></details>
+      <details><summary>Can we book just one bedroom?</summary><p>On selected low-season dates, up to two guests can book the lodge with one bedroom. You still have the kitchen, living area and bathroom to yourselves; the second bedroom remains closed.</p></details>
+      <details><summary>Check-in and check-out?</summary><p>Check-in from 3pm, check-out by 11am.</p></details>
+      <details><summary>Can we bring the dog?</summary><p>No dogs, so the linen and the Mourne Textiles throws stay fresh for every guest, including those with allergies. Assistance dogs are always welcome.</p></details>
+      <details><summary>Is there a cleaning fee?</summary><p>No. Cleaning is included in the price.</p></details>
+      <details><summary>What if we need to cancel?</summary><p>Full refund if you cancel 30 days or more before arrival. Half refunded between 30 and 7 days. Within 7 days, no refund, though we'll refund what we can if we re-let the dates. We recommend travel insurance.</p></details>
+      <details><summary>Is there a minimum stay?</summary><p id="page-minimum-stay">Two nights.</p></details>
+      <details><summary>Is it open all year?</summary><p>Yes. Winter is quieter on the hills.</p></details>
+    </div>
+  </div>
+</section>
+
+<dialog id="booking-dialog" class="booking-dialog" aria-labelledby="booking-title">
+  <div class="booking-top">
+    <div><p class="label">Book direct</p><h2 id="booking-title">A little time in the hills.</h2></div>
+    <button type="button" class="booking-close" id="booking-close" aria-label="Close booking form">×</button>
+  </div>
+  <p class="booking-notice" id="booking-notice" role="status">Loading your booking options…</p>
+  <div class="booking-layout">
+    <div class="booking-calendar">
+      <div class="booking-month"><button type="button" id="calendar-prev" aria-label="Previous month">‹</button><h3 id="calendar-heading"></h3><button type="button" id="calendar-next" aria-label="Next month">›</button></div>
+      <p class="booking-calendar-note" id="calendar-note">Choose arrival, then departure. Nightly prices shown are for two guests.</p>
+      <div class="booking-calendar-grid" id="booking-calendar-grid" aria-label="Stay calendar"></div>
+      <p class="booking-calendar-key"><span>● Selected stay</span><span class="calendar-unavailable-key">Unavailable nights are crossed out</span></p>
+      <div class="booking-tips"><p class="label">Your place in the Mournes</p><p>Two bedrooms. One big view.<br>Check-in from 3pm. Check-out by 11am.<br>Cleaning is included.</p></div>
+    </div>
+    <form id="booking-form" class="booking-form">
+      <fieldset><legend>Your stay</legend>
+        <label class="booking-field">Lodge<select id="booking-lodge" name="lodgeId"><option value="any">Best available lodge</option></select></label>
+        <label class="booking-field">Bedrooms<select id="booking-bedrooms" name="bedrooms"><option value="2">Two bedrooms · full lodge</option><option value="1">One bedroom · selected low-season dates</option></select><span id="booking-bedroom-help" class="booking-help">The one-bedroom option is for up to two guests, with the second bedroom closed.</span></label>
+        <div class="booking-fields">
+          <label class="booking-field">Arrival<input type="date" id="booking-in" name="checkIn" required></label>
+          <label class="booking-field">Departure<input type="date" id="booking-out" name="checkOut" required></label>
+          <label class="booking-field">Adults<select id="booking-adults" name="adults"><option value="1">1 adult</option><option value="2" selected>2 adults</option><option value="3">3 adults</option><option value="4">4 adults</option></select></label>
+          <label class="booking-field">Children<select id="booking-children" name="children"><option value="0">No children</option><option value="1">1 child</option><option value="2">2 children</option><option value="3">3 children</option></select></label>
+        </div>
+        <p class="booking-help" id="booking-capacity-help">Four guests per lodge. Two adults and three children can stay with the sofa bed reserved. Four adults cannot be combined with children.</p>
+      </fieldset>
+      <fieldset><legend>Make yourselves at home</legend>
+        <div class="booking-fields">
+          <label class="booking-field">Bedroom one<select id="booking-bedroom-one" name="bedroomOne"><option value="king">King bed</option><option value="twin">Two single beds</option></select></label>
+          <label class="booking-field" id="booking-bedroom-two-field">Bedroom two<select id="booking-bedroom-two" name="bedroomTwo"><option value="king">King bed</option><option value="twin">Two single beds</option></select></label>
+        </div>
+        <div id="booking-sofa-option" hidden>
+          <label class="booking-consent"><input type="checkbox" id="booking-sofa" name="sofaBed"><span>Prepare the sofa bed for the children · <strong id="booking-sofa-price">£30 per booking</strong></span></label>
+          <p class="booking-help" id="booking-sofa-help">Please select this in advance if your children will use the sofa bed.</p>
+        </div>
+        <div class="booking-hamper">
+          <div><p class="label">A slow morning</p><h3>Breakfast, waiting for you.</h3><p>Add an optional breakfast hamper to your stay.</p></div>
+          <label class="booking-field">Hamper<select id="booking-hamper" name="hamperId"><option value="">No breakfast hamper</option></select></label>
+          <label class="booking-field">Number of hampers<input type="number" min="1" max="28" value="1" id="booking-hamper-quantity" name="hamperQuantity" disabled></label>
+        </div>
+      </fieldset>
+      <div id="booking-quote" class="booking-quote" aria-live="polite"><p>Choose your dates to see the total for your stay.</p></div>
+      <fieldset><legend>Your details</legend>
+        <label class="booking-field">Full name<input id="booking-name" name="name" autocomplete="name" maxlength="100" required></label>
+        <div class="booking-fields">
+          <label class="booking-field">Email<input type="email" id="booking-email" name="email" autocomplete="email" maxlength="254" required></label>
+          <label class="booking-field">Phone <span class="booking-optional">(optional)</span><input type="tel" id="booking-phone" name="phone" autocomplete="tel" maxlength="40"></label>
+        </div>
+      </fieldset>
+      <label class="booking-consent"><input type="checkbox" id="booking-terms" required><span>I agree to the <a id="booking-terms-link" href="#" target="_blank" rel="noopener">booking terms</a> and have read the <a id="booking-privacy-link" href="#" target="_blank" rel="noopener">privacy notice</a>.</span></label>
+      <p id="booking-error" class="booking-error" role="alert" hidden></p>
+      <button class="btn dark booking-pay" type="submit" id="booking-pay" disabled>Choose your dates</button>
+      <p class="booking-help" id="booking-payment-note">You’ll see the full total before any payment.</p>
+    </form>
+  </div>
+</dialog>
+
+
+<footer>
+  <div class="wrap">
+    <svg class="ridge" aria-hidden="true" viewBox="0 0 384 60" preserveAspectRatio="none"><path d="M0,45 L8,47 L16,48 L24,49 L32,50 L40,51 L48,52 L56,52 L64,54 L72,54 L80,55 L96,52 L104,53 L112,55 L120,56 L128,57 L136,56 L144,55 L152,47 L160,40 L168,37 L176,35 L184,33 L192,30 L200,26 L208,21 L216,16 L224,10 L232,5 L240,5 L248,7 L256,9 L264,13 L272,18 L280,23 L288,28 L296,30 L304,32 L312,34 L320,37 L328,41 L336,48 L344,54 L352,54 L360,53 L368,52 L376,51 L384,50" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"></path></svg>
+    <div class="row">
+      <div style="display:flex;flex-direction:column;gap:14px"><img src="images/summit-club-logo.png" alt="Summit Club"><span>Clontafleece, County Down. Directions sent when you book.</span></div>
+      <dl>
+        <div><dt>Belfast</dt><dd>Within an hour</dd></div>
+        <div><dt>Dublin</dt><dd>About an hour and a half</dd></div>
+        <div><dt>Email</dt><dd><a href="mailto:hello@summitclub.co">hello@summitclub.co</a></dd></div>
+      </dl>
+    </div>
+    <div class="legal"><a data-policy="privacy" href="https://claude.ai/artifact/GtF9st82U5NJbu3KEPhbeo" target="_blank" rel="noopener">Privacy notice</a><a data-policy="terms" href="https://claude.ai/artifact/XKiY5cFXe3K2sqZ8JmtVn1" target="_blank" rel="noopener">Booking terms</a><button type="button" data-open-cookies="">Cookies</button><span>© Tempering NI Ltd, trading as Summit Club</span></div>
+  </div>
+</footer>
+<dialog class="cookies" id="cookies" aria-labelledby="ck-h">
+  <h2 id="ck-h" style="font-size:24px;margin:0 0 14px">Cookies</h2>
+  <p>This website doesn't use advertising or analytics cookies, and we don't track you.</p>
+  <p>The fonts load from Google Fonts, so your browser connects to Google to fetch them. Google's privacy policy covers that connection.</p>
+  <p>When our booking system goes live on this page, it may set cookies it needs to take a booking. We'll update this notice and ask you first if anything optional is added.</p>
+  <button type="button" class="btn dark" data-close-cookies="">Close</button>
+</dialog>
+
+<script>
+(function(){
+  var nav=document.getElementById('nav'),hero=document.getElementById('top');
+  function onScroll(){nav.classList.toggle('solid',hero.getBoundingClientRect().bottom<80);}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  document.getElementById('signup').addEventListener('submit',function(e){e.preventDefault();var em=this.querySelector('input[type=email]').value;window.location.href='mailto:hello@summitclub.co?subject='+encodeURIComponent('Join the club')+'&body='+encodeURIComponent('Please add '+em+' to the Summit Club list.');document.getElementById('ok').hidden=false;});
+  var hs=document.querySelectorAll('.hero .hs'),hi=0;if(hs.length>1&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){setInterval(function(){hs[hi].classList.remove('on');hi=(hi+1)%hs.length;hs[hi].classList.add('on');},6000);}
+  var ck=document.getElementById('cookies');document.querySelector('[data-open-cookies]').addEventListener('click',function(){if(ck.showModal)ck.showModal();else ck.setAttribute('open','');});document.querySelector('[data-close-cookies]').addEventListener('click',function(){ck.close();});ck.addEventListener('click',function(e){if(e.target===ck)ck.close();});
+})();
+</script>
+
+<script>window.SUMMIT_BOOKING_DEFAULTS={"brand":"Summit Club","currency":"gbp","pricesApproved":false,"bookingRulesVersion":2,"openingDate":"2026-12-01","horizonDays":540,"minNights":2,"maxNights":28,"baseGuests":2,"winterPence":25000,"standardPence":36000,"peakPence":42000,"weekendSupplementPence":0,"extraGuestPerNightPence":2500,"sofaBedPerStayPence":3000,"termsVersion":"draft-2026-11-09","lodges":[{"id":"lodge-one","name":"Lodge 1 — Roscaire"},{"id":"lodge-two","name":"Lodge 2 — Finn"}],"hampers":[{"id":"breakfast-two","name":"Breakfast hamper for two","pricePence":3500},{"id":"breakfast-family","name":"Family breakfast hamper","pricePence":5500}],"peakRanges":[{"from":"2027-02-11","to":"2027-02-15"},{"from":"2027-03-25","to":"2027-04-05"}],"termsUrl":"https://claude.ai/artifact/XKiY5cFXe3K2sqZ8JmtVn1","privacyUrl":"https://claude.ai/artifact/GtF9st82U5NJbu3KEPhbeo"};</script>
+<script src="assets/pricing.js" defer></script>
+<script src="assets/booking.js" defer></script>
+</body></html>
+

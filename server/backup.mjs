@@ -1,0 +1,10 @@
+import { DatabaseSync, backup } from 'node:sqlite';
+import { mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+const directory = resolve('backups');
+mkdirSync(directory, { recursive: true, mode: 0o700 });
+const source = new DatabaseSync(resolve(process.env.DATABASE_PATH || 'data/bookings.sqlite'));
+const destination = resolve(directory, 'summit-' + new Date().toISOString().replace(/[:.]/g, '-') + '.sqlite');
+await backup(source, destination);
+source.close();
+console.log('Backup saved: ' + destination);
