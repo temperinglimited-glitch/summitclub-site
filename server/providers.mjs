@@ -38,7 +38,7 @@ export class StripeGateway {
     const q = booking.quote;
     const stateUrl = baseUrl + '/booking-status.html?id=' + booking.id + '#token=' + receiptToken;
     const fields = {
-      mode: 'payment', 'payment_method_types[0]': 'card',
+      mode: 'payment', integration_identifier: 'summit-club-direct-piupqwpg',
       client_reference_id: booking.id, customer_email: booking.data.contact.email,
       'metadata[booking_id]': booking.id, 'metadata[source]': 'summit-club',
       success_url: stateUrl, cancel_url: stateUrl,
@@ -57,7 +57,7 @@ export class StripeGateway {
       fields['line_items[' + i + '][price_data][unit_amount]'] = String(amount);
       fields['line_items[' + i + '][quantity]'] = '1';
     });
-    return this.call('checkout/sessions', fields, 'summit-checkout-' + booking.id);
+    return this.call('checkout/sessions', fields, 'summit-checkout-v2-' + booking.id);
   }
   retrieve(id) { return this.call('checkout/sessions/' + encodeURIComponent(id)); }
   expire(id) { return this.call('checkout/sessions/' + encodeURIComponent(id) + '/expire', {}, 'summit-expire-' + id); }
