@@ -13,7 +13,7 @@
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["BookingStore"] }],
   "vars": {
     "BASE_URL": "https://test.summitclub.co",
-    "PAYMENTS_MODE": "off",
+    "PAYMENTS_MODE": "test",
     "EMAIL_DELIVERY": "off",
     "OWNER_EMAIL": "summit.club.ni@gmail.com",
     "TESTER_EMAILS": "summit.club.ni@gmail.com"
