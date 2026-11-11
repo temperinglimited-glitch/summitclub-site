@@ -17,7 +17,7 @@ export function verifyStripeSignature(raw, header, secret, now) {
 }
 
 export class StripeGateway {
-  constructor(key, fetcher = fetch) { this.key = key; this.fetcher = fetcher; }
+  constructor(key, fetcher = fetch) { this.key = key; this.fetcher = (...args) => fetcher(...args); }
   async call(path, fields = null, idempotencyKey = null) {
     const headers = { Authorization: 'Bearer ' + this.key, 'Stripe-Version': '2026-10-28.endive' };
     if (fields) headers['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -64,7 +64,7 @@ export class StripeGateway {
 }
 
 export class EmailGateway {
-  constructor(options, fetcher = fetch) { this.options = options; this.fetcher = fetcher; }
+  constructor(options, fetcher = fetch) { this.options = options; this.fetcher = (...args) => fetcher(...args); }
   async send(message, booking) {
     const { from, ownerEmail, apiKey } = this.options;
     const isOwner = message.kind.startsWith('owner') || message.kind === 'review';
