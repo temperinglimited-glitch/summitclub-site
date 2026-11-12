@@ -1,4 +1,4 @@
-mport { Buffer } from 'node:buffer';
+import { Buffer } from 'node:buffer';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import pricing from '../public/assets/pricing.js';
 import { BookingError } from './repository-core.mjs';
