@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Summit Club</title>
-<link rel="stylesheet" href="assets/booking.css">
+<link rel="stylesheet" href="assets/booking.css?v=20261112-3">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:wght@300;400&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Montserrat:wght@500;600&amp;display=swap">
@@ -416,7 +416,7 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
       <details><summary>Check-in and check-out?</summary><p>Check-in from 3pm, check-out by 11am.</p></details>
       <details><summary>Can we bring the dog?</summary><p>No dogs, so the linen and the Mourne Textiles throws stay fresh for every guest, including those with allergies. Assistance dogs are always welcome.</p></details>
       <details><summary>Is there a cleaning fee?</summary><p>No. Cleaning is included in the price.</p></details>
-      <details><summary>What if we need to cancel?</summary><p>Full refund if you cancel 30 days or more before arrival. Half refunded between 30 and 7 days. Within 7 days, no refund, though we'll refund what we can if we re-let the dates. We recommend travel insurance.</p></details>
+      <details><summary>What if we need to cancel?</summary><p>Cancel 30 or more days before arrival: full refund. At 7–29 days: 50% refund. At 0–6 days or for a no-show: no scheduled refund. Any amount we retain is limited to reasonable loss, allowing for savings and re-letting. We recommend travel insurance.</p></details>
       <details><summary>Is there a minimum stay?</summary><p id="page-minimum-stay">Two nights.</p></details>
       <details><summary>Is it open all year?</summary><p>Yes. Winter is quieter on the hills.</p></details>
     </div>
@@ -444,9 +444,10 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
         <div class="booking-fields">
           <label class="booking-field">Arrival<input type="date" id="booking-in" name="checkIn" required></label>
           <label class="booking-field">Departure<input type="date" id="booking-out" name="checkOut" required></label>
-          <label class="booking-field">Adults<select id="booking-adults" name="adults"><option value="1">1 adult</option><option value="2" selected>2 adults</option><option value="3">3 adults</option><option value="4">4 adults</option></select></label>
-          <label class="booking-field">Children<select id="booking-children" name="children"><option value="0">No children</option><option value="1">1 child</option><option value="2">2 children</option><option value="3">3 children</option></select></label>
+          <label class="booking-field">Adults · 18+<select id="booking-adults" name="adults"><option value="1">1 adult</option><option value="2" selected>2 adults</option><option value="3">3 adults</option><option value="4">4 adults</option></select></label>
+          <label class="booking-field">Children · under 18<select id="booking-children" name="children"><option value="0">No children</option><option value="1">1 child</option><option value="2">2 children</option><option value="3">3 children</option></select></label>
         </div>
+        <div id="booking-child-ages" class="booking-fields"></div>
         <p class="booking-help" id="booking-capacity-help">Four guests per lodge. Two adults and three children can stay with the sofa bed reserved. Four adults cannot be combined with children.</p>
       </fieldset>
       <fieldset><legend>Make yourselves at home</legend>
@@ -459,9 +460,10 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
           <p class="booking-help" id="booking-sofa-help">Please select this in advance if your children will use the sofa bed.</p>
         </div>
         <div class="booking-hamper">
-          <div><p class="label">A slow morning</p><h3>Breakfast, waiting for you.</h3><p>Add an optional breakfast hamper to your stay.</p></div>
+          <div><p class="label">A slow morning</p><h3>Breakfast, waiting for you.</h3><p>Ingredients for one generous breakfast, ready to cook in your lodge. Chilled items are placed in the fridge before arrival.</p></div>
           <label class="booking-field">Hamper<select id="booking-hamper" name="hamperId"><option value="">No breakfast hamper</option></select></label>
-          <label class="booking-field">Number of hampers<input type="number" min="1" max="28" value="1" id="booking-hamper-quantity" name="hamperQuantity" disabled></label>
+          <label class="booking-field">Number of hampers · charged per hamper<input type="number" min="1" max="28" value="1" id="booking-hamper-quantity" name="hamperQuantity" disabled></label>
+          <div id="booking-hamper-info" class="booking-help" hidden></div>
         </div>
       </fieldset>
       <div id="booking-quote" class="booking-quote" aria-live="polite"><p>Choose your dates to see the total for your stay.</p></div>
@@ -469,9 +471,20 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
         <label class="booking-field">Full name<input id="booking-name" name="name" autocomplete="name" maxlength="100" required></label>
         <div class="booking-fields">
           <label class="booking-field">Email<input type="email" id="booking-email" name="email" autocomplete="email" maxlength="254" required></label>
-          <label class="booking-field">Phone <span class="booking-optional">(optional)</span><input type="tel" id="booking-phone" name="phone" autocomplete="tel" maxlength="40"></label>
+          <label class="booking-field">Phone · include country code<input type="tel" id="booking-phone" name="phone" autocomplete="tel" maxlength="40" required></label>
         </div>
+        <label class="booking-field">Address line one<input id="booking-address-line1" autocomplete="address-line1" maxlength="120" required></label>
+        <label class="booking-field">Address line two <span class="booking-optional">(optional)</span><input id="booking-address-line2" autocomplete="address-line2" maxlength="120"></label>
+        <div class="booking-fields">
+          <label class="booking-field">Town / city<input id="booking-city" autocomplete="address-level2" maxlength="80" required></label>
+          <label class="booking-field">Postcode / ZIP / Eircode<input id="booking-postcode" autocomplete="postal-code" maxlength="20"><span class="booking-help">Eircode optional for Ireland.</span></label>
+        </div>
+        <label class="booking-field">Country<select id="booking-country" autocomplete="country" required></select></label>
+        <label class="booking-field">Special requests <span class="booking-optional">(optional)</span><textarea id="booking-requests" maxlength="500" rows="3" aria-describedby="booking-requests-help"></textarea><span class="booking-help" id="booking-requests-help">Requests are subject to written agreement. Please contact us separately about allergies or access needs; do not enter medical information here.</span></label>
+        <p class="booking-help">After payment, a private registration link lets you add the required details for guests aged 16 or over.</p>
+        <label class="booking-consent"><input type="checkbox" id="booking-lead-age" required><span>I am at least 18, will stay at the lodge and am booking for the party shown above.</span></label>
       </fieldset>
+      <p class="booking-help" id="booking-cancellation">Full payment on booking. Read the cancellation policy before paying.</p>
       <label class="booking-consent"><input type="checkbox" id="booking-terms" required><span>I agree to the <a id="booking-terms-link" href="#" target="_blank" rel="noopener">booking terms</a> and have read the <a id="booking-privacy-link" href="#" target="_blank" rel="noopener">privacy notice</a>.</span></label>
       <p id="booking-error" class="booking-error" role="alert" hidden></p>
       <button class="btn dark booking-pay" type="submit" id="booking-pay" disabled>Choose your dates</button>
@@ -492,14 +505,14 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
         <div><dt>Email</dt><dd><a href="mailto:hello@summitclub.co">hello@summitclub.co</a></dd></div>
       </dl>
     </div>
-    <div class="legal"><a data-policy="privacy" href="https://claude.ai/artifact/GtF9st82U5NJbu3KEPhbeo" target="_blank" rel="noopener">Privacy notice</a><a data-policy="terms" href="https://claude.ai/artifact/XKiY5cFXe3K2sqZ8JmtVn1" target="_blank" rel="noopener">Booking terms</a><button type="button" data-open-cookies="">Cookies</button><span>© Tempering NI Ltd, trading as Summit Club</span></div>
+    <div class="legal"><a data-policy="privacy" href="/privacy.html" target="_blank" rel="noopener">Privacy notice</a><a data-policy="terms" href="/booking-terms.html" target="_blank" rel="noopener">Booking terms</a><button type="button" data-open-cookies="">Cookies</button><span>© Tempering NI Ltd, trading as Summit Club</span></div>
   </div>
 </footer>
 <dialog class="cookies" id="cookies" aria-labelledby="ck-h">
   <h2 id="ck-h" style="font-size:24px;margin:0 0 14px">Cookies</h2>
-  <p>This website doesn't use advertising or analytics cookies, and we don't track you.</p>
+  <p>We do not add advertising or analytics cookies. The booking service uses necessary sign-in and security storage.</p>
   <p>The fonts load from Google Fonts, so your browser connects to Google to fetch them. Google's privacy policy covers that connection.</p>
-  <p>When our booking system goes live on this page, it may set cookies it needs to take a booking. We'll update this notice and ask you first if anything optional is added.</p>
+  <p>Secure booking and registration access is kept in your browser’s session storage. Stripe may use necessary cookies on checkout. We will ask separately before adding optional tracking.</p>
   <button type="button" class="btn dark" data-close-cookies="">Close</button>
 </dialog>
 
@@ -514,8 +527,9 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
 })();
 </script>
 
-<script>window.SUMMIT_BOOKING_DEFAULTS={"brand":"Summit Club","currency":"gbp","pricesApproved":false,"bookingRulesVersion":2,"openingDate":"2026-12-01","horizonDays":540,"minNights":2,"maxNights":28,"baseGuests":2,"winterPence":25000,"standardPence":36000,"peakPence":42000,"weekendSupplementPence":0,"extraGuestPerNightPence":2500,"sofaBedPerStayPence":3000,"termsVersion":"draft-2026-11-09","lodges":[{"id":"lodge-one","name":"Lodge 1 — Roscaire"},{"id":"lodge-two","name":"Lodge 2 — Finn"}],"hampers":[{"id":"breakfast-two","name":"Breakfast hamper for two","pricePence":3500},{"id":"breakfast-family","name":"Family breakfast hamper","pricePence":5500}],"peakRanges":[{"from":"2027-02-11","to":"2027-02-15"},{"from":"2027-03-25","to":"2027-04-05"}],"termsUrl":"https://claude.ai/artifact/XKiY5cFXe3K2sqZ8JmtVn1","privacyUrl":"https://claude.ai/artifact/GtF9st82U5NJbu3KEPhbeo"};</script>
-<script src="assets/pricing.js" defer></script>
-<script src="assets/booking.js" defer></script>
+<script>window.SUMMIT_BOOKING_DEFAULTS={"brand":"Summit Club","currency":"gbp","pricesApproved":false,"bookingRulesVersion":2,"hamperVersion":1,"openingDate":"2026-12-01","horizonDays":540,"minNights":2,"maxNights":28,"baseGuests":2,"winterPence":25000,"standardPence":36000,"peakPence":42000,"weekendSupplementPence":0,"extraGuestPerNightPence":2500,"sofaBedPerStayPence":3000,"termsVersion":"2026-11-12-draft-2","lodges":[{"id":"lodge-one","name":"Lodge 1 — Roscaire"},{"id":"lodge-two","name":"Lodge 2 — Finn"}],"hampers":[{"id":"breakfast-two","name":"Breakfast hamper for two","pricePence":3500},{"id":"breakfast-family","name":"Family breakfast hamper · serves four","pricePence":5500}],"peakRanges":[{"from":"2027-02-11","to":"2027-02-15"},{"from":"2027-03-25","to":"2027-04-05"}],"termsUrl":"/booking-terms.html","privacyUrl":"/privacy.html"};</script>
+<script src="assets/pricing.js?v=20261112-3" defer></script>
+<script src="assets/booking-details.js?v=20261112-3" defer></script>
+<script src="assets/booking.js?v=20261112-3" defer></script>
 </body></html>
 

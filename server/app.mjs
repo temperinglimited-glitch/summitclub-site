@@ -1,6 +1,8 @@
 import { Buffer } from 'node:buffer';
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import pricing from '../public/assets/pricing.js';
+import bookingDetails from '../public/assets/booking-details.js';
+import { POLICY_VERSION, TERMS_URL, PRIVACY_URL, readiness, policySnapshot, hamperInfo, hamperReady, cancellationSummary } from './policies.mjs';
 import { BookingError } from './repository-core.mjs';
 import { verifyStripeSignature } from './providers.mjs';
 
@@ -10,13 +12,15 @@ const json = (value, status = 200) => new Response(JSON.stringify(value), { stat
 const uuid = value => typeof value === 'string' && /^[0-9a-f-]{36}$/i.test(value);
 export function quoteHash(quote) { return digest(JSON.stringify(quote)); }
 
-export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.now() }) {
+export function createApp({ repo, stripe, mailer, runtime, recovery = null, clock = () => Date.now() }) {
   const now = () => Math.floor(clock() / 1000);
   const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clock()));
   const rates = new Map();
   let maintenancePromise = null;
   function token(id) { return createHmac('sha256', runtime.receiptSecret).update('summit-receipt:' + id).digest('base64url'); }
   function statusUrl(id) { return runtime.baseUrl + '/booking-status.html?id=' + id + '#token=' + token(id); }
+  function registrationToken(id) { return createHmac('sha256', runtime.receiptSecret).update('summit-register:' + id).digest('base64url'); }
+  function registrationUrl(id) { return runtime.baseUrl + '/guest-registration.html?id=' + id + '#token=' + registrationToken(id); }
   function limit(ip, group, max) {
     const key = String(ip || 'unknown') + ':' + group;
     const point = rates.get(key);
@@ -77,8 +81,8 @@ export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.no
       }
       if (runtime.emailEnabled && mailer) for (const message of repo.messages(now())) {
         const booking = repo.get(message.booking_id);
-        try { repo.sent(message.id, await mailer.send(message, booking)); }
-        catch { repo.messageFailed(message.id, now(), message.attempts); }
+        try { repo.sent(message.id, await mailer.send(message, booking, { registrationUrl: registrationUrl(booking.id) })); }
+        catch (error) { repo.messageFailed(message.id, now(), message.attempts, error.deliveryCode); }
       }
     })().finally(() => { maintenancePromise = null; });
     return maintenancePromise;
@@ -86,17 +90,19 @@ export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.no
   async function checkout(input) {
     if (!runtime.paymentsEnabled) throw new BookingError('Online booking is not open yet. You can explore dates and prices.', 503);
     const settings = repo.settings();
+    if (settings.termsUrl !== TERMS_URL || settings.privacyUrl !== PRIVACY_URL || settings.termsVersion !== POLICY_VERSION) throw new BookingError('Booking policy links need an owner review before checkout can open.', 503);
     if (runtime.mode === 'live' && !settings.pricesApproved) throw new BookingError('Online booking is temporarily unavailable.', 503);
+    if (runtime.mode === 'live' && !readiness().ready) throw new BookingError('Online booking is not open yet. Please contact Summit Club.', 503);
     const selection = pricing.selection(settings, input, today());
-    const contact = {
-      name: pricing.text(input.contact?.name, 1, 100, 'guest name'),
-      email: pricing.text(input.contact?.email, 3, 254, 'email address').toLowerCase(),
-      phone: typeof input.contact?.phone === 'string' ? input.contact.phone.trim().slice(0, 40) : ''
-    };
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) throw new BookingError('Enter a valid email address.');
+    const contact = bookingDetails.contact(input.contact);
+    const details = bookingDetails.details(input.details, selection);
+    if (runtime.mode === 'live' && selection.hamperId && !hamperReady(selection.hamperId)) throw new BookingError('That hamper is not yet available to purchase. Please remove it or contact us.', 409);
     if (input.termsAccepted !== true) throw new BookingError('Please accept the booking terms and privacy notice.');
+    if (input.termsVersion !== POLICY_VERSION) throw new BookingError('The booking terms have changed. Refresh the page and read them before continuing.', 409);
+    const acceptedPolicy = policySnapshot();
+    if (input.policyHash !== acceptedPolicy.sha256) throw new BookingError('The booking terms have changed. Refresh the page and read them before continuing.', 409);
     if (!uuid(input.requestKey)) throw new BookingError('Please refresh the booking form and try again.');
-    const requestHash = digest(JSON.stringify({ selection, contact, expectedTotalPence: input.expectedTotalPence, quoteHash: input.quoteHash }));
+    const requestHash = digest(JSON.stringify({ selection, contact, details, termsVersion: input.termsVersion, policyHash: input.policyHash, expectedTotalPence: input.expectedTotalPence, quoteHash: input.quoteHash }));
     let booking = repo.byRequest(input.requestKey);
     if (booking) {
       if (booking.request_hash !== requestHash) throw new BookingError('Your selection has changed. Please start a new checkout.', 409);
@@ -113,7 +119,7 @@ export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.no
       const { hash, ...storedQuote } = quote;
       booking = repo.reserve({
         requestKey: input.requestKey, requestHash, quote: storedQuote,
-        data: { contact, selection, paymentMode: runtime.mode, termsVersion: settings.termsVersion, termsAcceptedAt: now() },
+        data: { contact, details, selection, paymentMode: runtime.mode, termsVersion: POLICY_VERSION, termsAcceptedAt: now(), policySnapshot: acceptedPolicy, hamperInformation: selection.hamperId ? hamperInfo(selection.hamperId) : null },
         now: now()
       });
     }
@@ -150,6 +156,10 @@ export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.no
       if (method !== 'GET' && method !== 'HEAD') origin(request);
       if (path.startsWith('/api/admin/')) {
         authenticate(request, runtime.adminToken);
+        if (path === '/api/admin/recovery' && method === 'GET') {
+          if (!recovery) return json({ available: false, message: 'Cloudflare recovery bookmarks are available only on deployed SQLite Durable Objects.' });
+          return json({ available: true, bookmark: await recovery(), recordedAt: new Date(clock()).toISOString(), retentionDays: 30 });
+        }
         if (path === '/api/admin/settings' && method === 'GET') {
           const settings = repo.settings(); return json({ settings, version: digest(JSON.stringify(settings)) });
         }
@@ -158,7 +168,7 @@ export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.no
           if (value.version !== digest(JSON.stringify(repo.settings()))) throw new BookingError('Settings changed in another window. Refresh before saving.', 409);
           return json({ settings: repo.saveSettings(value.settings) });
         }
-        if (path === '/api/admin/bookings' && method === 'GET') return json({ bookings: repo.list(), outbox: repo.outbox(), overrides: repo.overrides(today(), pricing.addDays(today(), 1096)), oneBedroomRates: repo.oneBedroomRates(today(), pricing.addDays(today(), 1096)) });
+        if (path === '/api/admin/bookings' && method === 'GET') return json({ bookings: repo.list(), outbox: repo.outbox(), emailHealth: repo.emailHealth(), readiness: readiness(), overrides: repo.overrides(today(), pricing.addDays(today(), 1096)), oneBedroomRates: repo.oneBedroomRates(today(), pricing.addDays(today(), 1096)) });
         if (path === '/api/admin/calendar' && method === 'GET') {
           const from = url.searchParams.get('from'), to = url.searchParams.get('to'), settings = repo.settings();
           const days = pricing.nights(from, to, 62), overrides = repo.overrides(from, to), one = repo.oneBedroomRates(from, to), locks = repo.locked(from, to);
@@ -204,7 +214,23 @@ export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.no
         if (path === '/api/admin/reconcile' && method === 'POST') { await maintenance(); return json({ checked: true }); }
         throw new BookingError('Not found.', 404);
       }
-      if (path === '/api/config' && method === 'GET') return json({ settings: repo.settings(), today: today(), mode: runtime.mode, paymentsEnabled: runtime.paymentsEnabled });
+      if (path === '/api/config' && method === 'GET') return json({ settings: repo.settings(), today: today(), mode: runtime.mode, paymentsEnabled: runtime.paymentsEnabled, policyVersion: POLICY_VERSION, policyHash: policySnapshot().sha256, cancellationSummary, hamperInformation: readiness().business.hamperInformation });
+      if (path === '/api/guest-registration' && ['GET', 'PUT'].includes(method)) {
+        const id = url.searchParams.get('id');
+        if (!uuid(id) || !equal(request.headers.get('authorization') || '', 'Bearer ' + registrationToken(id))) throw new BookingError('Use the private registration link in your confirmation email.', 401);
+        const booking = repo.get(id);
+        if (!booking || booking.status !== 'confirmed') throw new BookingError('Registration is available for confirmed bookings only.', 409);
+        if (today() > pricing.addDays(booking.check_out, 1)) throw new BookingError('This registration link has expired. Contact Summit Club to make a correction.', 410);
+        if (method === 'PUT') {
+          limit(context.ip, 'registration', 20);
+          const value = bookingDetails.registration(await body(request), booking);
+          repo.saveRegistration(id, value, now());
+          return json({ saved: true });
+        }
+        const ages = booking.data.details?.childAges;
+        const count = booking.quote.selection.adults + (ages || []).filter(age => age >= 16).length;
+        return json({ id, lodge: booking.quote.lodge.name, checkIn: booking.check_in, checkOut: booking.check_out, count, childAgesKnown: !booking.quote.selection.children || Array.isArray(ages) && ages.length === booking.quote.selection.children, leadGuest: { name: booking.data.contact.name, address: booking.data.contact.address || null }, registration: booking.data.registration || null });
+      }
       if (path === '/api/availability' && method === 'GET') {
         const settings = repo.settings(), from = url.searchParams.get('from'), to = url.searchParams.get('to');
         const days = pricing.nights(from, to, 62), locks = repo.locked(from, to), overrides = repo.overrides(from, to);
@@ -234,6 +260,7 @@ export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.no
           id: booking.id, status: booking.status, quote: booking.quote,
           guestName: booking.data.contact.name, expiresAt: booking.expires_at,
           checkoutUrl: booking.status === 'checkout' && booking.expires_at > now() ? booking.checkout_url : null,
+          registrationUrl: booking.status === 'confirmed' ? registrationUrl(booking.id) : null,
           mode: runtime.mode
         });
       }
@@ -243,5 +270,5 @@ export function createApp({ repo, stripe, mailer, runtime, clock = () => Date.no
       return json({ error: status === 500 ? 'This step could not be completed. Please try again.' : error.message }, status);
     }
   }
-  return { handle, maintenance, token, findQuote };
+  return { handle, maintenance, token, registrationToken, findQuote };
 }

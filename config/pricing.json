@@ -15,18 +15,39 @@
   "extraGuestPerNightPence": 2500,
   "sofaBedPerStayPence": 3000,
   "lodges": [
-    { "id": "lodge-one", "name": "Lodge 1 — Roscaire" },
-    { "id": "lodge-two", "name": "Lodge 2 — Finn" }
+    {
+      "id": "lodge-one",
+      "name": "Lodge 1 — Roscaire"
+    },
+    {
+      "id": "lodge-two",
+      "name": "Lodge 2 — Finn"
+    }
   ],
   "hampers": [
-    { "id": "breakfast-two", "name": "Breakfast hamper for two", "pricePence": 3500 },
-    { "id": "breakfast-family", "name": "Family breakfast hamper", "pricePence": 5500 }
+    {
+      "id": "breakfast-two",
+      "name": "Breakfast hamper for two",
+      "pricePence": 3500
+    },
+    {
+      "id": "breakfast-family",
+      "name": "Family breakfast hamper · serves four",
+      "pricePence": 5500
+    }
   ],
   "peakRanges": [
-    { "from": "2027-02-11", "to": "2027-02-15" },
-    { "from": "2027-03-25", "to": "2027-04-05" }
+    {
+      "from": "2027-02-11",
+      "to": "2027-02-15"
+    },
+    {
+      "from": "2027-03-25",
+      "to": "2027-04-05"
+    }
   ],
-  "termsUrl": "https://claude.ai/artifact/XKiY5cFXe3K2sqZ8JmtVn1",
-  "privacyUrl": "https://claude.ai/artifact/GtF9st82U5NJbu3KEPhbeo",
-  "termsVersion": "draft-2026-11-09"
+  "termsUrl": "/booking-terms.html",
+  "privacyUrl": "/privacy.html",
+  "termsVersion": "2026-11-12-draft-2",
+  "hamperVersion": 1
 }

@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-12",
+  "base_commit": "5a10836f54301d1026d4a9be94e5089527182cba",
+  "deployment_status": "Prepared locally; not uploaded or deployed",
+  "validation": {
+    "node_tests": {
+      "passed": 76,
+      "failed": 0
+    },
+    "syntax_checked_modules": 14,
+    "cloudflare_asset_build": "passed",
+    "browser_checks": [
+      "Two named lodges; bedroom count hidden",
+      "Child ages and address controls",
+      "Hamper item lists; \u00a355 once for one family hamper",
+      "Two family hampers \u00a3110; lodge base \u00a3500; total \u00a3610",
+      "Synthetic 16+ guest register saved; token removed from URL",
+      "Owner displays address, ages, hamper stocking list and saved registration",
+      "Phone viewport has no horizontal overflow",
+      "Branded email preview includes hamper list and registration link"
+    ],
+    "real_provider_actions": "None; payment and email tests used simulated providers",
+    "hosted_restore_test": "Not performed",
+    "wrangler_bundle_or_deploy": "Not run locally; Wrangler unavailable"
+  },
+  "files": [
+    {
+      "path": "config/business.json",
+      "sha256": "e1db01c513eaf7159e7cbc82c12178a0edbeaf1c5d28f90e1f8dcfcabf6aa8c2"
+    },
+    {
+      "path": "config/pricing.json",
+      "sha256": "55320154a9fa2415d66f58368d34ac8985f76c3d8526ddeaeaaaf2083bce2e37"
+    },
+    {
+      "path": "server/app.mjs",
+      "sha256": "70e1d711bd558d0e6781bc7fd84c3fb514ca5e50999a3e63f9780e88cb6f92cb"
+    },
+    {
+      "path": "server/repository-core.mjs",
+      "sha256": "47df67f982ae5d626d2a65be358373ff9d19ace2a92a8bff2a915eb9249d18d6"
+    },
+    {
+      "path": "server/providers.mjs",
+      "sha256": "49e36932b610d24868fdfb7fa73fcf75aa3d741007dcf333c845018948c43f33"
+    },
+    {
+      "path": "server/policies.mjs",
+      "sha256": "241955051f6112163c61ee749ecf2f38fda24c3d18198dda2f1806456265a42f"
+    },
+    {
+      "path": "public/index.html",
+      "sha256": "6b8867dce2c05fd0a600549a7d441fadb97293f60d534b22be11bfaddd3a0a98"
+    },
+    {
+      "path": "public/admin.html",
+      "sha256": "112a5e58df22de5dc925cdeb22745438d81fe1c699ee5b7324ce9939e6dfdef8"
+    },
+    {
+      "path": "public/booking-status.html",
+      "sha256": "754ad6b880ef0203d3289c1fdd396facf70661c896e53191fb2de385a3ff0534"
+    },
+    {
+      "path": "public/guest-registration.html",
+      "sha256": "ac6ba5041956a5fd49a858be38ba416ba0b240198af69ba297ebbabe3655f0a6"
+    },
+    {
+      "path": "public/booking-terms.html",
+      "sha256": "a912e414b2f75cc1397aea3cafe1defbb53f9b29aefe491d575a443f1514a22b"
+    },
+    {
+      "path": "public/privacy.html",
+      "sha256": "5f8d91876530b4be797b1f8df4bb832276dae1410165d325d7c607f2076e6d5a"
+    },
+    {
+      "path": "public/assets/booking.css",
+      "sha256": "6dc14148442193c842106b1856406a32c62d575b203012eb58ce83c3189638a5"
+    },
+    {
+      "path": "public/assets/booking.js",
+      "sha256": "b8b7ee72b570c6fd330d0302db79286bf425e0c61cd5f1457bfb4c7e86e570e8"
+    },
+    {
+      "path": "public/assets/pricing.js",
+      "sha256": "3ee5dae6bef2d4e44c686c0528c1a0420002d98be906238c3399f8d8f4b33f9c"
+    },
+    {
+      "path": "public/assets/booking-details.js",
+      "sha256": "1e3acaa02b2a814f3001e38388b166f810f512f7411324aa31f917b849e4d29f"
+    },
+    {
+      "path": "public/assets/registration.js",
+      "sha256": "e14a7506ef590c3ec25d4a61b814dbedf0c19c2da27929fd70b23ba841c9e330"
+    },
+    {
+      "path": "public/assets/status.js",
+      "sha256": "87f417197a12e50d99b66309c9bc4c8c24a18135f0daee9dba584eb96067ab20"
+    },
+    {
+      "path": "public/assets/admin.js",
+      "sha256": "a78af013b06c1d9efa01eae0e3b3528b1c438369ca42f115f618daa45ac2e71f"
+    },
+    {
+      "path": "cloudflare/store.mjs",
+      "sha256": "deaf7d914d776f81e983df330fdb782e614cbcd82e93ab912e5cd7e10ba27c99"
+    },
+    {
+      "path": "scripts/build-cloudflare.mjs",
+      "sha256": "468f4974398304c6b835db6e7cbd8c3052cd9b2cae83188829d1cbd6818999f7"
+    },
+    {
+      "path": "scripts/build-policies.mjs",
+      "sha256": "c3becc5f7ce028f3bad95eee017db0e91d8b8c6370a49aa541f674f822630276"
+    },
+    {
+      "path": "scripts/preview-emails.mjs",
+      "sha256": "9f6c8e1af767c173a2cd47874cad3f6ee0d13e459999b30f8e49541e1310f3d4"
+    },
+    {
+      "path": "test/helpers.mjs",
+      "sha256": "1ab23eaf441b5061fd88f5e724d545cd3e99e1f27fcb48100360620818670f09"
+    },
+    {
+      "path": "test/booking.test.mjs",
+      "sha256": "2da8ae862797fb268dd9e9c72a77c040d54139eac84aa91e490afdbbbae06036"
+    },
+    {
+      "path": "test/cloudflare.test.mjs",
+      "sha256": "841c00145d84fbb3c1e9098c5825292fe7e49c7892d3707d8be71ea98b3d3052"
+    },
+    {
+      "path": "test/assets.test.mjs",
+      "sha256": "bee36b9b3c83b25d57146d5a41951753382521e568f8f0f95a53ae8df4f1f3da"
+    },
+    {
+      "path": "test/pricing.test.mjs",
+      "sha256": "3f2bf39a3d64133df7105a050a9a88ab8de3e7885a95a100ef56916a5dcfa6bb"
+    },
+    {
+      "path": "test/booking-details.test.mjs",
+      "sha256": "3c32863c2113c5e8d9aa5f6ffc99a278a5d6fc5863d156464ec8e690fd5d0ea8"
+    },
+    {
+      "path": "BOOKING_PROCESS_UPDATE.md",
+      "sha256": "8736037d290ed51d9c92066b41813d9bc7c293fa747ed3605889755bde062720"
+    }
+  ],
+  "artifact_name": "Summit_Club_Booking_Process_Update_v2.zip",
+  "policy_version": "2026-11-12-draft-2",
+  "business_details_source": "Owner supplied in this conversation on 12 November 2026."
+}

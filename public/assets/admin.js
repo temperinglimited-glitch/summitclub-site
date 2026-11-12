@@ -1,7 +1,7 @@
 (function() {
   'use strict';
   var get = function(id) { return document.getElementById(id); }, password = '', settings, version;
-  var P = window.SummitPricing, calendarSequence = 0, accessLogin = false;
+  var P = window.SummitPricing, D = window.SummitDetails, calendarSequence = 0, accessLogin = false;
   get('owner-calendar-month').value = P.today().slice(0, 7);
   var labels = [
     ['winterPence', 'Winter rate £', true], ['standardPence', 'Standard rate £', true], ['peakPence', 'Peak rate £', true],
@@ -54,6 +54,7 @@
       var stay = node('td', lodge ? lodge.name : b.lodge_id); stay.appendChild(node('small', b.check_in + ' → ' + b.check_out)); stay.appendChild(node('small', b.id)); tr.appendChild(stay);
       var guest = node('td', b.data.contact ? b.data.contact.name : 'Owner block');
       if (b.data.contact) { guest.appendChild(node('small', b.data.contact.email)); guest.appendChild(node('small', b.data.contact.phone)); }
+      if (b.data.contact && b.data.contact.address) guest.appendChild(node('small', D.addressText(b.data.contact.address)));
       tr.appendChild(guest);
       var detail = node('td', b.data.note || '');
       if (b.quote) {
@@ -61,6 +62,22 @@
         detail.appendChild(node('small', b.quote.selection.bedrooms === 1 ? 'ONE BEDROOM · second bedroom closed · ' + b.quote.selection.bedroomOne : 'Two bedrooms · ' + b.quote.selection.bedroomOne + ' / ' + b.quote.selection.bedroomTwo));
         detail.appendChild(node('small', b.quote.selection.sofaBed === true || b.quote.sofaBedPence > 0 ? 'SOFA BED: prepare for children' : 'Sofa bed: not reserved'));
         if (b.quote.hamperName) detail.appendChild(node('small', b.quote.hamperName + ' × ' + b.quote.selection.hamperQuantity));
+        if (b.data.details) {
+          if (b.data.details.childAges.length) detail.appendChild(node('small', 'Child ages on arrival: ' + b.data.details.childAges.join(', ')));
+          if (b.data.details.hamperFulfilment) detail.appendChild(node('small', 'Hamper: stock before arrival; chilled items in fridge.'));
+          if (b.data.hamperInformation && b.data.hamperInformation.items) detail.appendChild(node('small', b.data.hamperInformation.items.map(function(i) { return i.quantity + ' ' + i.name; }).join('; ')));
+          if (b.data.details.requests) detail.appendChild(node('small', 'Request · not yet agreed: ' + b.data.details.requests));
+        }
+        if (b.status === 'confirmed') {
+          var register = node('details'), registered = b.data.registration;
+          register.appendChild(node('summary', registered ? 'Guest register · saved' : 'Guest register · awaiting details'));
+          if (registered) registered.guests.forEach(function(g) {
+            register.appendChild(node('p', g.name + ' · ' + g.nationality + ' · ' + D.addressText(g.address)));
+            if (g.travelDetailsRequired) register.appendChild(node('p', 'Document: ' + g.documentNumber + ' · issued: ' + g.documentIssuePlace + ' · next destination: ' + g.nextDestination));
+          });
+          else register.appendChild(node('p', 'Check the required details before or on arrival. Older bookings may need a manual register.'));
+          detail.appendChild(register);
+        }
       }
       if (b.last_error) detail.appendChild(node('small', b.last_error));
       tr.appendChild(detail); tr.appendChild(node('td', b.quote ? money(b.quote.totalPence) : '—'));
@@ -96,7 +113,7 @@
     });
     if (!bookings.length) { var tr = node('tr'), td = node('td', 'No bookings or blocks yet.'); td.colSpan = 6; tr.appendChild(td); area.appendChild(tr); }
     get('owner-outbox').replaceChildren();
-    outbox.forEach(function(m) { get('owner-outbox').appendChild(node('p', m.kind + ' · ' + m.status + ' · ' + m.booking_id + (m.last_error ? ' · ' + m.last_error : ''))); });
+    outbox.forEach(function(m) { get('owner-outbox').appendChild(node('p', m.kind + ' · ' + m.status + ' · ' + m.booking_id + ' · attempts: ' + m.attempts + (m.last_error ? ' · ' + m.last_error : ''))); });
     if (!outbox.length) get('owner-outbox').textContent = 'No confirmation emails queued.';
     get('override-count').textContent = overrides.length + ' two-bedroom nightly overrides · ' + (oneBedroomRates || []).length + ' one-bedroom lodge-nights open.';
   }
@@ -138,6 +155,9 @@
     var results = await Promise.all([api('settings'), api('bookings')]);
     settings = results[0].settings; version = results[0].version;
     renderSettings(); renderBookings(results[1].bookings, results[1].outbox, results[1].overrides, results[1].oneBedroomRates);
+    var health = results[1].emailHealth || {}, banner = get('owner-email-alert'); banner.hidden = !health.failed;
+    banner.textContent = health.failed + ' email(s) have failed delivery attempts. Check Resend logs and the errors below, then use “Check payments & retry emails”. ' + health.pending + ' email(s) currently pending.';
+    var readiness = results[1].readiness; get('owner-readiness').textContent = readiness && !readiness.ready ? readiness.issues.join(' ') : 'Business details reviewed. Complete the launch checks before enabling live payments.';
     get('owner-content').hidden = false; get('owner-login').hidden = true;
     await loadPriceCalendar();
   }
@@ -151,6 +171,10 @@
   });
   ['owner-calendar-month', 'owner-calendar-lodge'].forEach(function(id) { get(id).addEventListener('change', loadPriceCalendar); });
   get('owner-refresh').addEventListener('click', function() { refresh().then(function() { status('Refreshed.'); }).catch(function(e) { status(e.message); }); });
+  get('owner-recovery').addEventListener('click', async function() {
+    try { var record = await api('recovery'); get('owner-recovery-result').textContent = record.available ? record.recordedAt + ' · ' + record.bookmark + ' · recovery window: ' + record.retentionDays + ' days. Copy this record to your secure operations notes.' : record.message; }
+    catch (error) { get('owner-recovery-result').textContent = error.message; }
+  });
   get('owner-reconcile').addEventListener('click', async function() { status('Checking…'); try { await api('reconcile', 'POST', {}); await refresh(); status('Payment states checked and pending email deliveries retried.'); } catch(e) { status(e.message); } });
   get('owner-prices').addEventListener('submit', async function(e) {
     e.preventDefault();

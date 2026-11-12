@@ -9,7 +9,7 @@ import { verifyAccess } from '../cloudflare/access.mjs';
 import { privateRuntime } from '../cloudflare/runtime.mjs';
 import { createPrivateGateway } from '../cloudflare/gateway.mjs';
 import { createBookingStore } from '../cloudflare/store.mjs';
-import { FakeStripe, selection } from './helpers.mjs';
+import { FakeStripe, selection, guestFields } from './helpers.mjs';
 
 const owner = 'summit.club.ni@gmail.com';
 const env = extra => ({ BASE_URL: 'https://test.summitclub.co', PAYMENTS_MODE: 'off', EMAIL_DELIVERY: 'off', OWNER_EMAIL: owner, TESTER_EMAILS: owner, ADMIN_TOKEN: 'owner-secret-'.repeat(4), RECEIPT_SECRET: 'receipt-secret-'.repeat(4), ...extra });
@@ -126,9 +126,19 @@ test('Cloudflare SQLite adapter preserves transactions, one-bedroom pricing and 
   assert.throws(() => repo.transaction(() => { repo.saveSettings({ ...before, winterPence: 10000 }); throw new Error('Rollback'); }));
   assert.equal(repo.settings().winterPence, before.winterPence); assert.ok(f.storage.transactions >= 2);
 });
+test('recovery bookmarks are read-only and available to the authenticated owner only', async t => {
+  const f = storeFixture(t);
+  f.storage.getCurrentBookmark = async () => '0000007b-0000b26e-00001538-synthetic';
+  const store = createBookingStore({ storage: f.storage }, f.config, { stripe: f.stripe });
+  const request = auth => new Request(f.config.BASE_URL + '/api/admin/recovery', { headers: auth ? { Authorization: 'Bearer ' + f.config.ADMIN_TOKEN } : {} });
+  assert.equal((await store.fetch(request(false))).status, 401);
+  const response = await store.fetch(request(true)); assert.equal(response.status, 200);
+  const record = await response.json(); assert.equal(record.bookmark, '0000007b-0000b26e-00001538-synthetic'); assert.equal(record.retentionDays, 30);
+  assert.equal(store.repo.list().length, 0);
+});
 test('Cloudflare storage prevents racing checkouts and schedules durable payment reconciliation', async t => {
   const f = storeFixture(t), q = f.store.app.findQuote(selection());
-  const value = { ...selection(), requestKey: randomUUID(), expectedTotalPence: q.totalPence, quoteHash: q.hash, termsAccepted: true, contact: { name: 'Test Guest', email: 'guest@example.com' } };
+  const value = { ...selection(), requestKey: randomUUID(), expectedTotalPence: q.totalPence, quoteHash: q.hash, termsAccepted: true, ...guestFields() };
   const make = value => new Request(f.config.BASE_URL + '/api/checkout', { method: 'POST', headers: { Origin: f.config.BASE_URL, 'Content-Type': 'application/json' }, body: JSON.stringify(value) });
   const results = await Promise.all([f.store.fetch(make(value)), f.store.fetch(make({ ...value, requestKey: randomUUID() }))]);
   assert.deepEqual(results.map(r=>r.status).sort(), [200,409]); assert.equal(f.store.repo.list().length, 1);

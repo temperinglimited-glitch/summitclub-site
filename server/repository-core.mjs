@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import pricing from '../public/assets/pricing.js';
+import { POLICY_VERSION, TERMS_URL, PRIVACY_URL } from './policies.mjs';
 
 export class BookingError extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
@@ -42,6 +43,23 @@ export class CoreRepository {
       return lodge;
     });
     if (renamed) this.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(named));
+    const extras = this.settings();
+    if (extras.hamperVersion !== 1) {
+      extras.hampers = extras.hampers.map(h => {
+        const configured = seed.hampers.find(item => item.id === h.id);
+        return configured && ['breakfast-two', 'breakfast-family'].includes(h.id) ? { ...h, name: configured.name, pricePence: configured.pricePence } : h;
+      });
+      extras.hamperVersion = 1;
+      this.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(extras));
+    }
+    // Only replace the original placeholder links. Do not reset owner pricing or custom policies.
+    const policies = this.settings();
+    const placeholderPolicies = policies.termsUrl === 'https://claude.ai/artifact/XKiY5cFXe3K2sqZ8JmtVn1' && policies.privacyUrl === 'https://claude.ai/artifact/GtF9st82U5NJbu3KEPhbeo';
+    const earlierManagedDraft = policies.termsUrl === TERMS_URL && policies.privacyUrl === PRIVACY_URL && policies.termsVersion === '2026-11-12-draft-1';
+    if (placeholderPolicies || earlierManagedDraft) {
+      policies.termsUrl = TERMS_URL; policies.privacyUrl = PRIVACY_URL; policies.termsVersion = POLICY_VERSION;
+      this.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(policies));
+    }
   }
   close() { this.db.close(); }
   transaction(fn) {
@@ -63,6 +81,15 @@ export class CoreRepository {
   get(id) { return this.decode(this.db.prepare('SELECT * FROM bookings WHERE id=?').get(id)); }
   byRequest(key) { return this.decode(this.db.prepare('SELECT * FROM bookings WHERE request_key=?').get(key)); }
   list() { return this.db.prepare('SELECT * FROM bookings ORDER BY created_at DESC LIMIT 1000').all().map(r => this.decode(r)); }
+  saveRegistration(id, value, now) {
+    return this.transaction(() => {
+      const booking = this.get(id);
+      if (!booking || booking.status !== 'confirmed') throw new BookingError('The booking is no longer confirmed.', 409);
+      const data = { ...booking.data, registration: { ...value, updatedAt: now } };
+      this.db.prepare('UPDATE bookings SET data_json=?,updated_at=? WHERE id=?').run(JSON.stringify(data), now, id);
+      return this.get(id);
+    });
+  }
   available(lodgeId, from, to) {
     return !this.db.prepare('SELECT 1 FROM night_locks WHERE lodge_id=? AND night>=? AND night<? LIMIT 1').get(lodgeId, from, to);
   }
@@ -178,9 +205,11 @@ export class CoreRepository {
   }
   messages(now) { return this.db.prepare("SELECT * FROM outbox WHERE status='pending' AND next_attempt<=? ORDER BY rowid LIMIT 20").all(now); }
   outbox() { return this.db.prepare('SELECT * FROM outbox ORDER BY rowid DESC LIMIT 200').all(); }
+  emailHealth() { return this.db.prepare("SELECT COUNT(*) AS pending,COALESCE(SUM(CASE WHEN attempts>0 THEN 1 ELSE 0 END),0) AS failed FROM outbox WHERE status='pending'").get(); }
   sent(id, providerId) { this.db.prepare("UPDATE outbox SET status='sent',provider_id=?,last_error=NULL WHERE id=?").run(providerId, id); }
-  messageFailed(id, now, attempts) {
-    this.db.prepare("UPDATE outbox SET attempts=attempts+1,last_error='Delivery failed; retry scheduled.',next_attempt=? WHERE id=?")
-      .run(now + Math.min(3600, 30 * 2 ** Math.min(attempts, 7)), id);
+  messageFailed(id, now, attempts, deliveryCode) {
+    const safe = ['authentication', 'sender_or_recipient', 'rate_limit', 'provider_unavailable'].includes(deliveryCode) ? deliveryCode : 'connection_or_provider';
+    this.db.prepare('UPDATE outbox SET attempts=attempts+1,last_error=?,next_attempt=? WHERE id=?')
+      .run('Delivery failed (' + safe + '); retry scheduled.', now + Math.min(3600, 30 * 2 ** Math.min(attempts, 7)), id);
   }
 }

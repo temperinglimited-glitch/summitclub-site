@@ -10,9 +10,10 @@ export function createBookingStore(ctx, env, providers = {}) {
   const repo = new CoreRepository(new DurableSqlDatabase(ctx.storage), seed);
   const stripe = providers.stripe || new StripeGateway(env.STRIPE_SECRET_KEY || '');
   const mailer = providers.mailer || new EmailGateway({ apiKey: env.RESEND_API_KEY, from: env.EMAIL_FROM, ownerEmail: env.OWNER_EMAIL });
-  const app = createApp({ repo, stripe, mailer, runtime, clock: providers.clock });
+  const recovery = typeof ctx.storage.getCurrentBookmark === 'function' ? () => ctx.storage.getCurrentBookmark() : null;
+  const app = createApp({ repo, stripe, mailer, runtime, recovery, clock: providers.clock });
   function hasWork() {
-    return (runtime.paymentsEnabled && repo.pending().length > 0) || (runtime.emailEnabled && repo.outbox().some(m => m.status === 'pending'));
+    return (runtime.paymentsEnabled && repo.pending().length > 0) || (runtime.emailEnabled && repo.emailHealth().pending > 0);
   }
   async function schedule() {
     if (hasWork() && !(await ctx.storage.getAlarm())) await ctx.storage.setAlarm(Date.now() + 60000);

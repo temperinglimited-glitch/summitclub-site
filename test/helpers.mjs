@@ -2,9 +2,13 @@ import { readFileSync } from 'node:fs';
 import { createHmac, randomUUID } from 'node:crypto';
 import { Repository } from '../server/repository.mjs';
 import { createApp } from '../server/app.mjs';
+import { POLICY_VERSION, policySnapshot } from '../server/policies.mjs';
 
 export const seed = JSON.parse(readFileSync(new URL('../config/pricing.json', import.meta.url), 'utf8'));
 export const selection = (extra = {}) => ({ lodgeId: 'lodge-one', checkIn: '2026-12-10', checkOut: '2026-12-12', adults: 2, children: 0, bedrooms: 2, sofaBed: false, hamperId: '', hamperQuantity: 0, bedroomOne: 'king', bedroomTwo: 'twin', ...extra });
+export function guestFields(input = selection()) {
+  return { termsVersion: POLICY_VERSION, policyHash: policySnapshot().sha256, details: { leadGuest18: true, childAges: Array.from({ length: input.children }, () => 8), requests: '' }, contact: { name: 'Test Guest', email: 'guest@example.com', phone: '+447700900123', address: { line1: '1 Test Street', line2: '', city: 'Test Town', country: 'GB', postcode: 'BT34 1AA' } } };
+}
 export class FakeStripe {
   sessions = new Map(); ids = new Map(); creates = 0; retrieves = 0; expirations = 0;
   failCreate = 0; failRetrieve = false;
@@ -40,7 +44,7 @@ export function fixture(t, options = {}) {
   async function start(extra = {}) {
     const input = selection(extra), q = await call('/api/quote', { method: 'POST', value: input });
     if (q.status !== 200) throw new Error(JSON.stringify(q.body));
-    const value = { ...input, requestKey: randomUUID(), expectedTotalPence: q.body.quote.totalPence, quoteHash: q.body.quote.hash, termsAccepted: true, contact: { name: 'Test Guest', email: 'guest@example.com', phone: '' } };
+    const value = { ...input, requestKey: randomUUID(), expectedTotalPence: q.body.quote.totalPence, quoteHash: q.body.quote.hash, termsAccepted: true, termsVersion: POLICY_VERSION, policyHash: policySnapshot().sha256, details: { leadGuest18: true, childAges: Array.from({ length: input.children }, () => 8), requests: '' }, contact: { name: 'Test Guest', email: 'guest@example.com', phone: '+447700900123', address: { line1: '1 Test Street', line2: '', city: 'Test Town', country: 'GB', postcode: 'BT34 1AA' } } };
     return { value, response: await call('/api/checkout', { method: 'POST', value }) };
   }
   async function webhook(sessionId, { type = 'checkout.session.completed', eventId = 'evt_' + randomUUID(), corrupt = false, timestamp = Math.floor(time / 1000), livemode = false, payload = {} } = {}) {

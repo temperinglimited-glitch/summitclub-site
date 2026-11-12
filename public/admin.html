@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Summit Club · Owner</title><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/booking.css"><script defer src="assets/pricing.js"></script><script defer src="assets/admin.js"></script></head>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Summit Club · Owner</title><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/booking.css?v=20261112-3"><script defer src="assets/pricing.js?v=20261112-3"></script><script defer src="assets/booking-details.js?v=20261112-3"></script><script defer src="assets/admin.js?v=20261112-3"></script></head>
 <body><main class="owner-page">
   <p class="label">Summit Club · Owner</p><h1>Your lodges, in one place.</h1>
   <p><a href="index.html">View website</a></p>
@@ -16,9 +16,9 @@
         </div>
         <label class="booking-field" style="margin-top:20px">Special peak periods<textarea id="owner-peak" rows="4" placeholder="2027-02-11 to 2027-02-15"></textarea><span>One range per line: first night to departure date. Summer July and August are always peak.</span></label>
         <div class="owner-grid">
-          <label>Booking terms URL<input type="url" id="owner-terms-url" required></label>
-          <label>Privacy notice URL<input type="url" id="owner-privacy-url" required></label>
-          <label>Terms version<input id="owner-terms-version" maxlength="80" required></label>
+          <label>Booking terms URL<input id="owner-terms-url" required readonly></label>
+          <label>Privacy notice URL<input id="owner-privacy-url" required readonly></label>
+          <label>Terms version<input id="owner-terms-version" maxlength="80" required readonly></label>
         </div>
         <label class="owner-check"><input type="checkbox" id="owner-approved">I have reviewed the prices, guest rules, extras and policy links for accepting real bookings.</label>
         <button class="btn dark" type="submit">Save settings</button>
@@ -53,6 +53,8 @@
     <section class="owner-panel"><h2>Bookings &amp; blocked dates</h2>
       <div class="owner-table-wrap"><table class="owner-table"><thead><tr><th>Status</th><th>Lodge &amp; stay</th><th>Guest</th><th>Details</th><th>Total</th><th>Action</th></tr></thead><tbody id="owner-bookings"></tbody></table></div>
     </section>
-    <section class="owner-panel"><h2>Confirmation emails</h2><p class="booking-help">Emails stay queued while delivery is switched off. Configure the email service before accepting live payments.</p><div id="owner-outbox" class="booking-help" style="margin-top:16px"></div></section>
+    <section class="owner-panel"><h2>Confirmation emails</h2><p class="booking-help">Pending messages are retried while email delivery is enabled. Sent means accepted by the email provider; check Resend for delivery or bounces.</p><p id="owner-email-alert" class="booking-error" role="status" hidden></p><div id="owner-outbox" class="booking-help" style="margin-top:16px"></div></section>
+    <section class="owner-panel"><h2>Before live bookings</h2><p class="booking-help" id="owner-readiness"></p><p class="booking-help">Business identity and hamper information are maintained in config/business.json. Terms and privacy wording are maintained in server/policies.mjs and rebuilt with the website. See BOOKING_PROCESS_UPDATE.md for the remaining launch checks.</p></section>
+    <section class="owner-panel"><h2>Recovery record</h2><p class="booking-help">Record a Cloudflare recovery bookmark before a release. It identifies a point within Cloudflare’s 30-day recovery history; it is not a downloaded backup. Restores require a separate, tested recovery procedure.</p><button type="button" class="btn" id="owner-recovery">Show current recovery bookmark</button><p class="booking-help" id="owner-recovery-result" style="overflow-wrap:anywhere"></p></section>
   </div>
 </main></body></html>

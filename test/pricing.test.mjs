@@ -34,7 +34,7 @@ test('invalid dates, capacities, quantities and tampered input are rejected', ()
     { checkOut: '2026-12-11' }, { checkOut: '2026-12-10' }, { checkIn: '2026-11-10', checkOut: '2026-11-12' },
     { checkIn: '2028-10-01', checkOut: '2028-10-03' }, { adults: 4, children: 1 }, { adults: '2' },
     { adults: 0 }, { children: -1 }, { lodgeId: 'fake' }, { hamperId: 'fake', hamperQuantity: 1 },
-    { hamperId: 'breakfast-two', hamperQuantity: 3 }, { hamperQuantity: 1 }, { bedroomOne: 'fake' }
+    { hamperId: 'breakfast-two', hamperQuantity: 29 }, { hamperQuantity: 1 }, { bedroomOne: 'fake' }
   ]) assert.throws(() => quote(input), input + ' should be invalid');
   assert.throws(() => pricing.selection(seed, null, '2026-11-09'));
   assert.throws(() => pricing.validateSettings(null));

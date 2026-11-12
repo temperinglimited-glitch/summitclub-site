@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { fixture, selection } from './helpers.mjs';
+import { fixture, selection, guestFields } from './helpers.mjs';
 
 test('preview mode quotes stays but cannot create a payment or reservation', async t => {
   const f = fixture(t, { mode: 'off', paymentsEnabled: false });
@@ -10,7 +10,7 @@ test('preview mode quotes stays but cannot create a payment or reservation', asy
 });
 test('two simultaneous checkouts for the same lodge produce one hold', async t => {
   const f = fixture(t), q = f.app.findQuote(selection());
-  const value = { ...selection(), requestKey: randomUUID(), expectedTotalPence: q.totalPence, quoteHash: q.hash, termsAccepted: true, contact: { name: 'Guest', email: 'guest@example.com' } };
+  const value = { ...selection(), requestKey: randomUUID(), expectedTotalPence: q.totalPence, quoteHash: q.hash, termsAccepted: true, ...guestFields() };
   const results = await Promise.all([value, { ...value, requestKey: randomUUID() }].map(v => f.call('/api/checkout', { method: 'POST', value: v })));
   assert.deepEqual(results.map(r => r.status).sort(), [200, 409]);
   assert.equal(f.repo.list().length, 1); assert.equal(f.repo.locked('2026-12-10', '2026-12-12').length, 2);
@@ -40,7 +40,7 @@ test('retrying the same checkout reuses the booking and Stripe session; changed 
 });
 test('stale prices and manipulated totals never reach Stripe', async t => {
   const f = fixture(t), q = f.app.findQuote(selection());
-  const value = { ...selection(), requestKey: randomUUID(), expectedTotalPence: q.totalPence - 1, quoteHash: q.hash, termsAccepted: true, contact: { name: 'Guest', email: 'g@example.com' } };
+  const value = { ...selection(), requestKey: randomUUID(), expectedTotalPence: q.totalPence - 1, quoteHash: q.hash, termsAccepted: true, ...guestFields() };
   assert.equal((await f.call('/api/checkout', { method: 'POST', value })).status, 409);
   f.repo.setOverride('lodge-one', '2026-12-10', '2026-12-12', 30000);
   assert.equal((await f.call('/api/checkout', { method: 'POST', value: { ...value, expectedTotalPence: q.totalPence } })).status, 409);

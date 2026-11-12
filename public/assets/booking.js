@@ -1,6 +1,7 @@
 (function() {
   'use strict';
   var P = window.SummitPricing, settings = window.SUMMIT_BOOKING_DEFAULTS;
+  var D = window.SummitDetails, policyVersion = '', policyHash = '', hamperInformation = {};
   // Set true to offer the one-/two-bedroom choice again. Hidden bookings use the full lodge.
   var bedroomChoiceEnabled = false;
   var dialog = document.getElementById('booking-dialog'), form = document.getElementById('booking-form');
@@ -41,6 +42,25 @@
     return result;
   }
   function option(select, value, label) { var o = node('option', label); o.value = value; select.appendChild(o); }
+  function syncDetails() {
+    var area = get('booking-child-ages'), previous = Array.from(area.querySelectorAll('select')).map(function(e) { return e.value; });
+    area.replaceChildren();
+    for (var i = 0; i < Number(get('booking-children').value); i++) {
+      var label = node('label', 'Child ' + (i + 1) + ' · age on arrival', 'booking-field'), age = node('select'); age.required = true;
+      option(age, '', 'Choose age'); for (var a = 0; a < 18; a++) option(age, String(a), a === 0 ? 'Under 1' : String(a));
+      age.value = previous[i] == null ? '' : previous[i]; label.appendChild(age); area.appendChild(label);
+    }
+    var hamper = get('booking-hamper').value, info = get('booking-hamper-info'), h = hamperInformation[hamper];
+    info.replaceChildren(); info.hidden = !hamper;
+    if (hamper && h) {
+      info.appendChild(node('p', h.description));
+      var list = node('ul'); (h.items || []).forEach(function(item) { list.appendChild(node('li', item.quantity + ' ' + item.name)); }); info.appendChild(list);
+      info.appendChild(node('p', 'Allergens: ' + h.allergens));
+      if (!h.reviewed) info.appendChild(node('p', 'Private test: proposed contents, subject to supplier confirmation.'));
+      info.appendChild(node('p', 'Tea, coffee, cooking oil, salt and pepper are standard lodge essentials.'));
+    }
+    get('booking-postcode').required = ['GB', 'US', 'CA', 'AU'].includes(get('booking-country').value);
+  }
   function syncGuestOptions() {
     get('booking-bedrooms-field').hidden = !bedroomChoiceEnabled;
     get('booking-one-bedroom-faq').hidden = !bedroomChoiceEnabled;
@@ -70,7 +90,10 @@
     lodge.value = settings.lodges.some(function(l) { return l.id === previousLodge; }) ? previousLodge : settings.lodges[0].id;
     var hampers = get('booking-hamper'), previousHamper = hampers.value;
     hampers.replaceChildren(); option(hampers, '', 'No breakfast hamper');
-    settings.hampers.forEach(function(h) { option(hampers, h.id, h.name + ' · ' + P.money(h.pricePence)); });
+    settings.hampers.forEach(function(h) {
+      var info = hamperInformation[h.id];
+      if (mode !== 'live' || info && info.reviewed && info.description && info.allergens) option(hampers, h.id, h.name + ' · ' + P.money(h.pricePence));
+    });
     hampers.value = settings.hampers.some(function(h) { return h.id === previousHamper; }) ? previousHamper : '';
     get('booking-hamper-quantity').disabled = !hampers.value;
     ['booking-in', 'booking-out'].forEach(function(id) { get(id).min = settings.openingDate > currentDay ? settings.openingDate : currentDay; get(id).max = P.addDays(currentDay, settings.horizonDays + (id === 'booking-out' ? 1 : 0)); });
@@ -90,13 +113,15 @@
     document.querySelectorAll('[data-base-rate]').forEach(function(element) { element.textContent = P.money(settings[element.dataset.baseRate]); });
     var notice = get('page-pricing-note');
     if (notice) notice.textContent = settings.pricesApproved ? 'Choose dates and guest numbers for your full quote. Cleaning included.' : 'Draft rates for review. Guest supplements and hamper prices are illustrative and will be confirmed before bookings open.';
-    syncGuestOptions(); updatePay();
+    syncGuestOptions(); syncDetails(); updatePay();
   }
   var ready = (async function() {
     if (location.protocol !== 'file:') {
       try {
         var result = await api('/api/config');
         settings = result.settings; currentDay = result.today; mode = result.mode;
+        policyVersion = result.policyVersion; policyHash = result.policyHash; hamperInformation = result.hamperInformation || {};
+        get('booking-cancellation').textContent = result.cancellationSummary;
         connected = true; paymentsEnabled = result.paymentsEnabled;
       } catch (_) { connected = false; }
     }
@@ -190,6 +215,7 @@
   function changed() {
     requestKey = null; lastSubmission = null;
     syncGuestOptions();
+    syncDetails();
     get('booking-hamper-quantity').disabled = !get('booking-hamper').value;
     if (get('booking-in').value) get('booking-out').min = P.addDays(get('booking-in').value, settings.minNights);
     drawCalendar(); refreshQuote();
@@ -198,7 +224,11 @@
     if (id === 'booking-in' && get(id).value) month = get(id).value.slice(0, 7) + '-01';
     changed(); if (id === 'booking-lodge' || id === 'booking-in' || id === 'booking-bedrooms') loadCalendar();
   }); });
-  ['booking-name', 'booking-email', 'booking-phone', 'booking-terms'].forEach(function(id) { get(id).addEventListener('input', function() { requestKey = null; lastSubmission = null; }); });
+  get('booking-hamper-quantity').addEventListener('input', changed);
+  form.addEventListener('input', function() { requestKey = null; lastSubmission = null; });
+  form.addEventListener('change', function() { requestKey = null; lastSubmission = null; });
+  D.populateCountries(get('booking-country'));
+  get('booking-country').addEventListener('change', function() { get('booking-postcode').required = ['GB', 'US', 'CA', 'AU'].includes(this.value); });
   get('calendar-prev').addEventListener('click', function() { month = nextMonth(month, -1); loadCalendar(); });
   get('calendar-next').addEventListener('click', function() { month = nextMonth(month, 1); loadCalendar(); });
   document.querySelectorAll('[data-open-dates]').forEach(function(button) {
@@ -215,7 +245,9 @@
     try {
       if (!requestKey) requestKey = crypto.randomUUID();
       if (!lastSubmission) lastSubmission = Object.assign({}, selection(), {
-        contact: { name: get('booking-name').value, email: get('booking-email').value, phone: get('booking-phone').value },
+        contact: D.contact({ name: get('booking-name').value, email: get('booking-email').value, phone: get('booking-phone').value, address: { line1: get('booking-address-line1').value, line2: get('booking-address-line2').value, city: get('booking-city').value, postcode: get('booking-postcode').value, country: get('booking-country').value } }),
+        details: D.details({ leadGuest18: get('booking-lead-age').checked, childAges: Array.from(get('booking-child-ages').querySelectorAll('select')).map(function(e) { return e.value === '' ? null : Number(e.value); }), requests: get('booking-requests').value }, selection()),
+        termsVersion: policyVersion, policyHash: policyHash,
         requestKey: requestKey, termsAccepted: get('booking-terms').checked,
         expectedTotalPence: quote.totalPence, quoteHash: quote.hash
       });

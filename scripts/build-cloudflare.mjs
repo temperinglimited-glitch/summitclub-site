@@ -2,6 +2,8 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pricing from '../public/assets/pricing.js';
+import { buildPolicies } from './build-policies.mjs';
+buildPolicies();
 const root = fileURLToPath(new URL('../', import.meta.url));
 const dist = resolve(root, 'dist');
 rmSync(dist, { recursive: true, force: true });
@@ -14,7 +16,7 @@ html = html.replace(/<script>window\.SUMMIT_BOOKING_DEFAULTS=[\s\S]*?;<\/script>
 writeFileSync(resolve(dist, 'test/index.html'), html);
 html = html.replace(/<dialog id="booking-dialog"[\s\S]*?<\/dialog>/, '');
 html = html.replace(/<script>window\.SUMMIT_BOOKING_DEFAULTS=[\s\S]*?;<\/script>/, '');
-html = html.replace(/<script src="assets\/(?:booking|pricing)\.js" defer><\/script>/g, '');
+html = html.replace(/<script src="assets\/(?:booking|pricing|booking-details)\.js(?:\?[^"]*)?" defer><\/script>/g, '');
 html = html.replace(/<button([^>]*data-open-dates[^>]*)>[\s\S]*?<\/button>/g, '<button$1 disabled aria-disabled="true">Bookings opening soon</button>');
 html = html.replace('Explore your stay from December. Choose a lodge, dates and guest numbers, then add the little extras.', 'Online bookings will open soon. Join the club to hear when dates are released.');
 html = html.replace('Choose your dates, party size and extras for a full quote.', 'Online bookings will open soon.');
@@ -22,6 +24,7 @@ mkdirSync(resolve(dist, 'public/assets'), { recursive: true });
 writeFileSync(resolve(dist, 'public/index.html'), html);
 cpSync(resolve(root, 'public/images'), resolve(dist, 'public/images'), { recursive: true });
 for (const file of ['site.css','booking.css']) cpSync(resolve(root, 'public/assets', file), resolve(dist, 'public/assets', file));
+for (const file of ['booking-terms.html', 'privacy.html']) cpSync(resolve(root, 'public', file), resolve(dist, 'public', file));
 writeFileSync(resolve(dist, 'public/_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: no-referrer\n  X-Frame-Options: DENY\n');
 console.log('Cloudflare Pages: dist/public (public brochure; bookings opening soon).');
 console.log('Private booking Worker assets: dist/test (requires authorised Cloudflare Access login).');

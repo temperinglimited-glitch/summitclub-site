@@ -1,0 +1,140 @@
+{
+  "legalName": "Tempering NI Limited",
+  "tradingName": "Summit Club",
+  "companyNumber": "NI717654",
+  "registeredOffice": "10C Clontafleece Road, Burren, BT34 3QS",
+  "contactAddress": "10C Clontafleece Road, Burren, BT34 3QS",
+  "vatNumber": "478976016",
+  "contactEmail": "bookings@summitclub.co",
+  "contactPhone": "+353 85 712 6407",
+  "reviewedForLiveBookings": false,
+  "hamperInformation": {
+    "breakfast-two": {
+      "description": "Ingredients for one generous breakfast for two, ready to cook in your lodge. Stocked before arrival, with chilled items placed in the fridge. Charged per hamper, not per person or per night.",
+      "serves": 2,
+      "items": [
+        {
+          "name": "Pork sausages",
+          "quantity": "4"
+        },
+        {
+          "name": "Back bacon",
+          "quantity": "4 rashers"
+        },
+        {
+          "name": "Free-range eggs",
+          "quantity": "6"
+        },
+        {
+          "name": "Soda farls",
+          "quantity": "2"
+        },
+        {
+          "name": "Potato bread",
+          "quantity": "2 pieces"
+        },
+        {
+          "name": "Tomatoes",
+          "quantity": "2"
+        },
+        {
+          "name": "Mushrooms",
+          "quantity": "150g"
+        },
+        {
+          "name": "Fresh scones or pastries",
+          "quantity": "2"
+        },
+        {
+          "name": "Juice",
+          "quantity": "1 litre"
+        },
+        {
+          "name": "Milk",
+          "quantity": "1 litre"
+        },
+        {
+          "name": "Butter",
+          "quantity": "Small pack"
+        },
+        {
+          "name": "Individual jams",
+          "quantity": "2"
+        },
+        {
+          "name": "Fresh fruit",
+          "quantity": "2 pieces"
+        }
+      ],
+      "allergens": "Exact product ingredients and allergen information are awaiting supplier confirmation. Contact us about allergies before purchase. Unavailable for live purchase until this information is confirmed.",
+      "reviewed": false
+    },
+    "breakfast-family": {
+      "description": "Ingredients for one generous breakfast for four, ready to cook in your lodge. Stocked before arrival, with chilled items placed in the fridge. Charged per hamper, not per person or per night.",
+      "serves": 4,
+      "items": [
+        {
+          "name": "Pork sausages",
+          "quantity": "8"
+        },
+        {
+          "name": "Back bacon",
+          "quantity": "8 rashers"
+        },
+        {
+          "name": "Free-range eggs",
+          "quantity": "12"
+        },
+        {
+          "name": "Soda farls",
+          "quantity": "4"
+        },
+        {
+          "name": "Potato bread",
+          "quantity": "4 pieces"
+        },
+        {
+          "name": "Tomatoes",
+          "quantity": "4"
+        },
+        {
+          "name": "Mushrooms",
+          "quantity": "250g"
+        },
+        {
+          "name": "Fresh scones or pastries",
+          "quantity": "4"
+        },
+        {
+          "name": "Juice",
+          "quantity": "1 litre"
+        },
+        {
+          "name": "Milk",
+          "quantity": "1 litre"
+        },
+        {
+          "name": "Butter",
+          "quantity": "Small pack"
+        },
+        {
+          "name": "Individual jams",
+          "quantity": "4"
+        },
+        {
+          "name": "Fresh fruit",
+          "quantity": "4 pieces"
+        }
+      ],
+      "allergens": "Exact product ingredients and allergen information are awaiting supplier confirmation. Contact us about allergies before purchase. Unavailable for live purchase until this information is confirmed.",
+      "reviewed": false
+    }
+  },
+  "lodgeEssentials": [
+    "Tea",
+    "Coffee",
+    "Cooking oil",
+    "Salt",
+    "Pepper"
+  ]
+}

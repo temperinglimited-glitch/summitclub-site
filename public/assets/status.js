@@ -26,6 +26,12 @@
       line(data.quote.selection.sofaBed === true || data.quote.sofaBedPence > 0 ? 'Sofa bed reserved for children' : 'Sofa bed not reserved');
       if (data.quote.hamperName) line(data.quote.hamperName + ' × ' + data.quote.selection.hamperQuantity);
       line('Reference: ' + data.id);
+      if (confirmed && data.registrationUrl) {
+        var registration = new URL(data.registrationUrl);
+        if (registration.origin === location.origin && registration.pathname === '/guest-registration.html') {
+          var register = document.createElement('a'); register.className = 'btn'; register.textContent = 'Complete guest registration'; register.href = registration.href; get('stay-details').appendChild(register);
+        }
+      }
       if (data.checkoutUrl) {
         var link = document.createElement('a'); link.textContent = 'Resume secure checkout'; link.className = 'btn dark';
         var destination = new URL(data.checkoutUrl);

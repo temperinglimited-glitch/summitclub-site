@@ -35,6 +35,7 @@
       brand: text(input.brand, 1, 60, 'business name'), currency: 'gbp',
       pricesApproved: input.pricesApproved === true,
       bookingRulesVersion: 2,
+      hamperVersion: 1,
       openingDate: input.openingDate,
       horizonDays: integer(input.horizonDays, 30, 1095, 'booking horizon'),
       minNights: integer(input.minNights, 1, 28, 'minimum stay'),
@@ -68,6 +69,7 @@
       nights(r.from, r.to, 366); return { from: r.from, to: r.to };
     });
     ['termsUrl', 'privacyUrl'].forEach(function(key) {
+      if (input[key] === (key === 'termsUrl' ? '/booking-terms.html' : '/privacy.html')) { s[key] = input[key]; return; }
       try {
         var u = new URL(input[key]);
         if (u.protocol !== 'https:') fail('Use an HTTPS link for ' + key + '.');
@@ -106,7 +108,6 @@
     if (familyOfFive && !value.sofaBed) fail('Please select the sofa bed for your party of two adults and three children.');
     if (value.hamperId && !settings.hampers.some(function(h) { return h.id === value.hamperId; })) fail('Choose a valid hamper.');
     if ((!value.hamperId && value.hamperQuantity !== 0) || (value.hamperId && value.hamperQuantity < 1)) fail('Check the hamper quantity.');
-    if (value.hamperQuantity > days.length) fail('Choose at most one hamper delivery per morning of your stay.');
     ['bedroomOne', 'bedroomTwo'].forEach(function(key) {
       if (!(key === 'bedroomTwo' && value.bedrooms === 1) && !['king', 'twin'].includes(value[key])) fail('Choose king or twin beds for each bedroom.');
     });

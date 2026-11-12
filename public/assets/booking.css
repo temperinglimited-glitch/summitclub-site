@@ -27,8 +27,9 @@
 .booking-form legend{font-family:var(--f-display);font-size:28px;margin-bottom:18px}
 .booking-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .booking-field{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;font-size:13px;color:var(--soft)}
-.booking-field input,.booking-field select{width:100%;min-width:0;min-height:48px;padding:11px 12px;border:1px solid var(--rule);border-radius:0;background:var(--paper-2);color:var(--ink);font:16px var(--f-body);color-scheme:dark}
-.booking-field input:focus,.booking-field select:focus{outline:1px solid var(--peat);outline-offset:1px}
+.booking-field input,.booking-field select,.booking-field textarea{width:100%;min-width:0;min-height:48px;padding:11px 12px;border:1px solid var(--rule);border-radius:0;background:var(--paper-2);color:var(--ink);font:16px var(--f-body);color-scheme:dark}
+.booking-field textarea{resize:vertical}
+.booking-field input:focus,.booking-field select:focus,.booking-field textarea:focus{outline:1px solid var(--peat);outline-offset:1px}
 .booking-field select:disabled,.booking-field input:disabled{opacity:.4}
 .booking-optional{display:inline;font-size:11px}
 .booking-hamper{padding:22px;background:var(--paper-2);border:1px solid var(--rule);margin-top:8px}
@@ -54,5 +55,10 @@
 .owner-rate-day{display:flex;flex-direction:column;gap:3px;min-height:100px;background:var(--paper-2);color:var(--ink);border:1px solid var(--rule);padding:9px 6px;cursor:pointer;text-align:left}.owner-rate-day small{font-size:11px;color:var(--soft)}.owner-rate-day:hover,.owner-rate-day:focus{border-color:var(--peat)}.owner-rate-day.is-reserved{border-top:3px solid var(--peat)}
 @media(max-width:650px){.owner-rate-day{padding:6px 3px;min-height:88px}.owner-rate-day small{font-size:8px}.owner-price-calendar{gap:3px}}
 .status-card{max-width:720px;margin:10vh auto;padding:36px 28px;border:1px solid var(--rule)}.status-card h1{font-size:44px;margin:20px 0}.status-card p{margin:16px 0;color:var(--soft)}.status-card .btn{margin-top:16px}
+.registration-card{max-width:760px}.registration-entry{border:0;border-top:1px solid var(--rule);padding:24px 0;margin:28px 0}.registration-entry legend{font:28px var(--f-display);padding-right:12px}.registration-entry .btn{margin:0 0 20px}
+.policy-card{max-width:820px;margin:60px auto;padding:0 24px 60px}.policy-card h1{font-size:48px;margin:26px 0}.policy-card h2{font-size:28px;margin:30px 0 12px}.policy-card p{color:var(--soft);line-height:1.8}.policy-card nav{margin-top:40px;color:var(--peat)}
+.policy-card section{padding:0;margin:28px 0}.policy-card section h2{margin:0 0 10px}.policy-card section p{margin:0}
+@media(max-width:760px){.status-card{margin:24px 12px;padding:28px 20px}.policy-card{margin-top:30px}.status-card h1,.policy-card h1{font-size:36px}}
+@media print{.policy-card{max-width:none;margin:0;padding:0}.policy-card,.policy-card p{color:#000!important;background:#fff!important}.policy-card nav{display:none}}
 @media(max-width:850px){.booking-dialog{padding:24px 18px}.booking-layout{grid-template-columns:1fr;gap:28px}.booking-calendar{position:static}.booking-tips{display:none}.booking-day{min-height:60px}.owner-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:460px){.booking-fields,.owner-grid{grid-template-columns:1fr 1fr;gap:10px}.booking-day{min-height:49px}.booking-day small{font-size:8px}.booking-hamper,.booking-quote{padding:16px}.booking-top h2{font-size:32px}.booking-dialog{width:calc(100% - 16px);max-height:96svh;padding:18px 12px}.owner-page{padding:28px 16px}.owner-panel{padding:16px}.owner-grid{grid-template-columns:1fr}}

@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import pricing from '../public/assets/pricing.js';
+import bookingDetails from '../public/assets/booking-details.js';
 import { BookingError } from './repository-core.mjs';
 
 export function verifyStripeSignature(raw, header, secret, now) {
@@ -65,17 +66,27 @@ export class StripeGateway {
 
 export class EmailGateway {
   constructor(options, fetcher = fetch) { this.options = options; this.fetcher = (...args) => fetcher(...args); }
-  async send(message, booking) {
+  async send(message, booking, context = {}) {
     const { from, ownerEmail, apiKey } = this.options;
-    const { isOwner, subject, text, html } = bookingEmailContent(message, booking, ownerEmail);
+    const { isOwner, subject, text, html } = bookingEmailContent(message, booking, ownerEmail, context);
+    const snapshot = booking.data.policySnapshot;
+    const confirmed = ['guest', 'owner'].includes(message.kind);
+    const attachment = confirmed && snapshot ? {
+      filename: 'Summit-Club-booking-' + booking.id + '.txt',
+      content: Buffer.from(text + '\n\nACCEPTED TERMS AND PRIVACY NOTICE\nAccepted (UTC): ' + new Date(booking.data.termsAcceptedAt * 1000).toISOString() + '\nSHA-256: ' + snapshot.sha256 + '\n\n' + snapshot.text, 'utf8').toString('base64')
+    } : null;
     const response = await this.fetcher('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'Idempotency-Key': 'summit-' + message.id },
-      body: JSON.stringify({ from, to: [isOwner ? ownerEmail : booking.data.contact.email], reply_to: ownerEmail, subject, text, html }),
+      body: JSON.stringify({ from, to: [isOwner ? ownerEmail : booking.data.contact.email], reply_to: ownerEmail, subject, text, html, ...(attachment ? { attachments: [attachment] } : {}) }),
       signal: AbortSignal.timeout(15000)
     });
     const result = await response.json();
-    if (!response.ok || !result.id) throw new Error('Email delivery failed.');
+    if (!response.ok || !result.id) {
+      const error = new Error('Email delivery failed.');
+      error.deliveryCode = response.status === 401 || response.status === 403 ? 'authentication' : response.status === 422 || response.status === 400 ? 'sender_or_recipient' : response.status === 429 ? 'rate_limit' : 'provider_unavailable';
+      throw error;
+    }
     return result.id;
   }
 }
@@ -97,7 +108,7 @@ function emailDetail(label, value) {
 
 // Inline styles, presentation tables and system fonts keep the core design
 // readable when an email client removes the optional mobile style block.
-export function bookingEmailContent(message, booking, ownerEmail) {
+export function bookingEmailContent(message, booking, ownerEmail, context = {}) {
   const q = booking.quote, contact = booking.data.contact, s = q.selection;
   const isOwner = message.kind.startsWith('owner') || message.kind === 'review';
   const cancelled = message.kind.includes('cancelled'), review = message.kind === 'review';
@@ -110,6 +121,8 @@ export function bookingEmailContent(message, booking, ownerEmail) {
   const sofa = s.sofaBed === true || q.sofaBedPence > 0 ? 'Reserved for children' : 'Not reserved';
   const extras = q.hamperName ? q.hamperName + ' × ' + s.hamperQuantity : 'None selected';
   const guests = s.adults + ' ' + (s.adults === 1 ? 'adult' : 'adults') + ' · ' + s.children + ' ' + (s.children === 1 ? 'child' : 'children');
+  const details = booking.data.details, policy = booking.data.policySnapshot;
+  const arrivalLink = !cancelled && !review && context.registrationUrl && /^https?:\/\//.test(context.registrationUrl) ? context.registrationUrl : '';
   const text = [
     test ? 'TEST BOOKING — no real payment was taken.' : '',
     review ? 'Please review this payment and date reservation in the owner screen.' : cancelled ? 'This booking has been cancelled.' : 'Your Summit Club booking is confirmed.',
@@ -118,14 +131,25 @@ export function bookingEmailContent(message, booking, ownerEmail) {
     'Guests: ' + guests, room, beds, 'Sofa bed: ' + sofa[0].toLowerCase() + sofa.slice(1) + '.', 'Breakfast hamper: ' + extras,
     (cancelled ? 'Original booking total: ' : review ? 'Booking total to review: ' : 'Total for your stay: ') + pricing.money(q.totalPence),
     !cancelled && !review ? 'Check-in from 3pm; check-out by 11am.' : '',
+    details?.childAges?.length ? 'Children’s ages on arrival: ' + details.childAges.join(', ') : '',
+    details?.hamperFulfilment ? 'Breakfast ingredients stocked before arrival; chilled items placed in the fridge. One generous breakfast per hamper; cook in your lodge.' : '',
+    booking.data.hamperInformation?.items ? 'Hamper contents (each): ' + booking.data.hamperInformation.items.map(i => i.quantity + ' ' + i.name).join('; ') : '',
+    booking.data.hamperInformation?.allergens ? 'Hamper allergens: ' + booking.data.hamperInformation.allergens : '',
+    details?.requests ? 'Request (subject to written agreement): ' + details.requests : '',
+    !cancelled && !review && policy ? policy.cancellationSummary : '',
+    !cancelled && !review && policy ? 'Your accepted terms and booking details are attached. Terms version: ' + policy.version : '',
+    arrivalLink ? 'Before your stay: complete the private guest register for guests aged 16 or over. Keep this link private: ' + arrivalLink : '',
     isOwner ? 'Guest: ' + contact.name + ' · ' + contact.email + (contact.phone ? ' · ' + contact.phone : '') : '',
+    isOwner && contact.address ? 'Address: ' + bookingDetails.addressText(contact.address) : '',
     '', 'Questions or a change of plan? Reply to this email.', 'Contact: ' + ownerEmail, 'Summit Club · Your place in the Mournes.'
   ].filter(Boolean).join('\n');
   const c = emailColours;
   const testNotice = test ? `<tr><td class="email-pad" style="padding:0 40px 26px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td bgcolor="${c.panel}" style="padding:14px 16px;border:1px solid ${c.gold};background-color:${c.panel};color:${c.gold};font:12px/19px ${emailSans};"><strong style="letter-spacing:1.6px;font-size:10px;">TEST BOOKING</strong><br>No real payment was taken.</td></tr></table></td></tr>` : '';
-  const details = [emailDetail('Guests', guests), emailDetail('Bedrooms', room), emailDetail('Bed setup', beds), emailDetail('Sofa bed', sofa), emailDetail('Breakfast hamper', extras)].join('');
+  const detailRows = [emailDetail('Guests', guests), emailDetail('Bedrooms', room), emailDetail('Bed setup', beds), emailDetail('Sofa bed', sofa), emailDetail('Breakfast hamper', extras), details?.childAges?.length ? emailDetail('Children’s ages', details.childAges.join(', ')) : '', details?.hamperFulfilment ? emailDetail('Breakfast before arrival', 'Ingredients for one generous breakfast per hamper, ready to cook. Chilled items placed in your fridge.') : '', booking.data.hamperInformation?.items ? emailDetail('Contents · each hamper', booking.data.hamperInformation.items.map(i => i.quantity + ' ' + i.name).join('; ')) : '', booking.data.hamperInformation?.allergens ? emailDetail('Allergen information', booking.data.hamperInformation.allergens) : '', details?.requests ? emailDetail('Request · not yet agreed', details.requests) : ''].join('');
   const guestDetails = isOwner ? `<tr><td class="email-pad" style="padding:28px 40px 0;"><p style="margin:0 0 12px;font:600 10px/16px ${emailSans};letter-spacing:2.3px;color:${c.gold};">GUEST DETAILS</p><p style="margin:0;font:14px/23px ${emailSans};color:${c.ink};">${emailEscape(contact.name)}<br><a href="mailto:${emailEscape(encodeURIComponent(contact.email))}" style="color:${c.ink};text-decoration:underline;word-break:break-all;">${emailEscape(contact.email)}</a>${contact.phone ? '<br>' + emailEscape(contact.phone) : ''}</p></td></tr>` : '';
   const arrivalNote = !cancelled && !review ? `<tr><td class="email-pad" style="padding:24px 40px 0;"><p style="margin:0;font:13px/22px ${emailSans};color:${c.soft};">Check-in from 3pm. Check-out by 11am.</p></td></tr>` : '';
+  const registrationNote = arrivalLink ? `<tr><td class="email-pad" style="padding:24px 40px 0;"><p style="margin:0 0 12px;font:normal 24px/30px ${emailSerif};color:${c.ink};">Before your stay.</p><p style="margin:0 0 16px;font:13px/22px ${emailSans};color:${c.soft};">Please complete the visitor register for guests aged 16 or over. Keep this link private; it can view and update registration details.</p><a href="${emailEscape(arrivalLink)}" style="display:inline-block;padding:14px 18px;background:${c.gold};color:${c.paper};font:600 12px/18px ${emailSans};text-decoration:none;">COMPLETE GUEST REGISTRATION</a></td></tr>` : '';
+  const policyNote = !cancelled && !review && policy ? `<tr><td class="email-pad" style="padding:24px 40px 0;"><p style="margin:0;font:12px/20px ${emailSans};color:${c.soft};">${emailEscape(policy.cancellationSummary)}<br><br>Your accepted terms and booking details are attached. Version ${emailEscape(policy.version)}.</p></td></tr>` : '';
   const totalLabel = cancelled ? 'Original booking total' : review ? 'Booking total to review' : 'Total for your stay';
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><title>${emailEscape(subject)}</title>
@@ -140,9 +164,9 @@ ${testNotice}
 <tr><td class="email-pad" style="padding:0 40px 28px;"><h1 class="email-title" style="margin:0 0 18px;font:normal 44px/49px ${emailSerif};letter-spacing:-1px;color:${c.ink};">${emailEscape(heading)}</h1><p style="margin:0;font:15px/25px ${emailSans};color:${c.soft};">${emailEscape(introduction)}</p></td></tr>
 <tr><td class="email-pad" style="padding:0 40px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td style="padding:22px 0 20px;border-top:1px solid ${c.rule};"><p style="margin:0 0 9px;font:600 10px/16px ${emailSans};letter-spacing:2.3px;color:${c.gold};">${cancelled ? 'ORIGINAL STAY' : review ? 'STAY TO REVIEW' : 'YOUR STAY'}</p><h2 style="margin:0;font:normal 27px/34px ${emailSerif};color:${c.ink};">${emailEscape(q.lodge.name)}</h2><p style="margin:6px 0 0;font:13px/20px ${emailSans};color:${c.soft};">${q.nights} ${q.nights === 1 ? 'night' : 'nights'} · ${emailEscape(room)}</p></td></tr></table></td></tr>
 <tr><td class="email-pad" style="padding:0 40px 20px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="${c.panel}" style="background-color:${c.panel};"><tr><td width="50%" valign="top" style="padding:18px 16px;border:1px solid ${c.rule};"><p style="margin:0 0 7px;font:600 10px/16px ${emailSans};letter-spacing:1.6px;color:${c.gold};">ARRIVAL</p><p style="margin:0;font:normal 20px/27px ${emailSerif};color:${c.ink};">${emailEscape(emailDate(booking.check_in))}</p></td><td width="50%" valign="top" style="padding:18px 16px;border:1px solid ${c.rule};"><p style="margin:0 0 7px;font:600 10px/16px ${emailSans};letter-spacing:1.6px;color:${c.gold};">DEPARTURE</p><p style="margin:0;font:normal 20px/27px ${emailSerif};color:${c.ink};">${emailEscape(emailDate(booking.check_out))}</p></td></tr></table></td></tr>
-<tr><td class="email-pad" style="padding:0 40px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">${details}</table></td></tr>
+<tr><td class="email-pad" style="padding:0 40px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">${detailRows}</table></td></tr>
 <tr><td class="email-pad" style="padding:26px 40px 0;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="${c.gold}" style="background-color:${c.gold};"><tr><td style="padding:18px 20px;font:14px/21px ${emailSans};color:${c.paper};">${emailEscape(totalLabel)}<br><span style="font-size:11px;">GBP${test ? ' · test payment' : ''}</span></td><td align="right" class="email-total" style="padding:18px 20px;font:normal 34px/38px ${emailSerif};color:${c.paper};white-space:nowrap;">${emailEscape(pricing.money(q.totalPence))}</td></tr></table></td></tr>
-${arrivalNote}${guestDetails}
+${arrivalNote}${registrationNote}${policyNote}${guestDetails}
 <tr><td class="email-pad" style="padding:26px 40px 28px;"><p style="margin:0 0 7px;font:600 10px/16px ${emailSans};letter-spacing:2px;color:${c.soft};">BOOKING REFERENCE</p><p style="margin:0;font:12px/20px ${emailSans};color:${c.soft};word-break:break-all;">${emailEscape(booking.id)}</p></td></tr>
 <tr><td class="email-pad" style="padding:25px 40px 32px;border-top:1px solid ${c.rule};"><p style="margin:0 0 8px;font:normal 22px/29px ${emailSerif};color:${c.ink};">${isOwner ? 'All the details, in one place.' : 'Questions or a change of plan?'}</p><p style="margin:0 0 22px;font:13px/22px ${emailSans};color:${c.soft};">${isOwner ? 'This is the owner copy of the booking update. Guest contact details are shown above.' : 'Reply to this email and we’ll help.'}</p><a href="https://summitclub.co" style="font:600 10px/18px ${emailSans};letter-spacing:2px;color:${c.gold};text-decoration:underline;">SUMMITCLUB.CO</a></td></tr>
 </table><!--[if mso]></td></tr></table><![endif]-->
