@@ -412,7 +412,7 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
     <p class="label">Before you book</p>
     <div class="faq">
       <details open=""><summary>How many people can stay?</summary><p>Up to four adults per cabin; children cannot be added to a four-adult booking. Families of two adults and three children can stay using the sofa bed. The sofa bed is for children only and must be reserved in advance for <span id="page-sofa-price">£30</span> per booking, plus any additional guest charges shown in your quote. Book both cabins for bigger groups.</p></details>
-      <details><summary>Can we book just one bedroom?</summary><p>On selected low-season dates, up to two guests can book the lodge with one bedroom. You still have the kitchen, living area and bathroom to yourselves; the second bedroom remains closed.</p></details>
+      <details id="booking-one-bedroom-faq" hidden><summary>Can we book just one bedroom?</summary><p>On selected low-season dates, up to two guests can book the lodge with one bedroom. You still have the kitchen, living area and bathroom to yourselves; the second bedroom remains closed.</p></details>
       <details><summary>Check-in and check-out?</summary><p>Check-in from 3pm, check-out by 11am.</p></details>
       <details><summary>Can we bring the dog?</summary><p>No dogs, so the linen and the Mourne Textiles throws stay fresh for every guest, including those with allergies. Assistance dogs are always welcome.</p></details>
       <details><summary>Is there a cleaning fee?</summary><p>No. Cleaning is included in the price.</p></details>
@@ -439,8 +439,8 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
     </div>
     <form id="booking-form" class="booking-form">
       <fieldset><legend>Your stay</legend>
-        <label class="booking-field">Lodge<select id="booking-lodge" name="lodgeId"><option value="any">Best available lodge</option></select></label>
-        <label class="booking-field">Bedrooms<select id="booking-bedrooms" name="bedrooms"><option value="2">Two bedrooms · full lodge</option><option value="1">One bedroom · selected low-season dates</option></select><span id="booking-bedroom-help" class="booking-help">The one-bedroom option is for up to two guests, with the second bedroom closed.</span></label>
+        <label class="booking-field">Lodge<select id="booking-lodge" name="lodgeId"><option value="lodge-one">Lodge 1 — Roscaire</option><option value="lodge-two">Lodge 2 — Finn</option></select></label>
+        <label class="booking-field" id="booking-bedrooms-field" hidden>Bedrooms<select id="booking-bedrooms" name="bedrooms" disabled><option value="2">Two bedrooms · full lodge</option><option value="1">One bedroom · selected low-season dates</option></select><span id="booking-bedroom-help" class="booking-help">The one-bedroom option is for up to two guests, with the second bedroom closed.</span></label>
         <div class="booking-fields">
           <label class="booking-field">Arrival<input type="date" id="booking-in" name="checkIn" required></label>
           <label class="booking-field">Departure<input type="date" id="booking-out" name="checkOut" required></label>
