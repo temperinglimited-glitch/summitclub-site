@@ -1,6 +1,8 @@
 (function() {
   'use strict';
   var P = window.SummitPricing, settings = window.SUMMIT_BOOKING_DEFAULTS;
+  // Set true to offer the one-/two-bedroom choice again. Hidden bookings use the full lodge.
+  var bedroomChoiceEnabled = false;
   var dialog = document.getElementById('booking-dialog'), form = document.getElementById('booking-form');
   var get = function(id) { return document.getElementById(id); };
   var connected = false, mode = 'off', paymentsEnabled = false, quote = null, sequence = 0;
@@ -15,12 +17,13 @@
     return element;
   }
   function message(text) { get('booking-error').textContent = text || ''; get('booking-error').hidden = !text; }
+  function bedroomCount() { return bedroomChoiceEnabled ? Number(get('booking-bedrooms').value) : 2; }
   function selection() {
     return {
       lodgeId: get('booking-lodge').value,
       checkIn: get('booking-in').value, checkOut: get('booking-out').value,
       adults: Number(get('booking-adults').value), children: Number(get('booking-children').value),
-      bedrooms: Number(get('booking-bedrooms').value), sofaBed: get('booking-sofa').checked,
+      bedrooms: bedroomCount(), sofaBed: get('booking-sofa').checked,
       bedroomOne: get('booking-bedroom-one').value, bedroomTwo: get('booking-bedroom-two').value,
       hamperId: get('booking-hamper').value,
       hamperQuantity: get('booking-hamper').value ? Number(get('booking-hamper-quantity').value) : 0
@@ -39,7 +42,11 @@
   }
   function option(select, value, label) { var o = node('option', label); o.value = value; select.appendChild(o); }
   function syncGuestOptions() {
-    var bedrooms = Number(get('booking-bedrooms').value), adults = Number(get('booking-adults').value);
+    get('booking-bedrooms-field').hidden = !bedroomChoiceEnabled;
+    get('booking-one-bedroom-faq').hidden = !bedroomChoiceEnabled;
+    get('booking-bedrooms').disabled = !bedroomChoiceEnabled;
+    if (!bedroomChoiceEnabled) get('booking-bedrooms').value = '2';
+    var bedrooms = bedroomCount(), adults = Number(get('booking-adults').value);
     var maxChildren = bedrooms === 1 ? Math.max(0, 2 - adults) : adults === 2 ? 3 : Math.max(0, 4 - adults);
     Array.from(get('booking-adults').options).forEach(function(o) { o.disabled = bedrooms === 1 && Number(o.value) > 2; });
     Array.from(get('booking-children').options).forEach(function(o) { o.disabled = Number(o.value) > maxChildren; });
@@ -58,9 +65,9 @@
   }
   function configure() {
     var lodge = get('booking-lodge'), previousLodge = lodge.value;
-    lodge.replaceChildren(); option(lodge, 'any', 'Best available lodge');
+    lodge.replaceChildren();
     settings.lodges.forEach(function(l) { option(lodge, l.id, l.name); });
-    lodge.value = settings.lodges.some(function(l) { return l.id === previousLodge; }) ? previousLodge : 'any';
+    lodge.value = settings.lodges.some(function(l) { return l.id === previousLodge; }) ? previousLodge : settings.lodges[0].id;
     var hampers = get('booking-hamper'), previousHamper = hampers.value;
     hampers.replaceChildren(); option(hampers, '', 'No breakfast hamper');
     settings.hampers.forEach(function(h) { option(hampers, h.id, h.name + ' · ' + P.money(h.pricePence)); });
@@ -135,12 +142,12 @@
     var to = nextMonth(month, 1), dates = P.nights(month, to, 32);
     if (connected) {
       try {
-        var result = await api('/api/availability?from=' + month + '&to=' + to + '&lodgeId=' + encodeURIComponent(get('booking-lodge').value) + '&bedrooms=' + get('booking-bedrooms').value);
+        var result = await api('/api/availability?from=' + month + '&to=' + to + '&lodgeId=' + encodeURIComponent(get('booking-lodge').value) + '&bedrooms=' + bedroomCount());
         if (run !== calendarSequence) return;
         days = result.days;
       } catch (error) { if (run === calendarSequence) { days = []; message(error.message); } }
     } else {
-      days = dates.map(function(date) { var full = get('booking-bedrooms').value === '2'; return { date: date, available: full, basePence: full ? P.nightlyRate(settings, date, settings.lodges[0].id, []) : null }; });
+      days = dates.map(function(date) { var full = bedroomCount() === 2; return { date: date, available: full, basePence: full ? P.nightlyRate(settings, date, get('booking-lodge').value, []) : null }; });
     }
     if (run === calendarSequence) drawCalendar();
   }
