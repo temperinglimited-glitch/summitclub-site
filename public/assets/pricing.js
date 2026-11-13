@@ -5,6 +5,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function() {
   'use strict';
   var DAY = 86400000;
+  var hamperNotice = 'Breakfast hampers require at least 48 hours’ notice before your 3pm check-in.';
   function fail(message) {
     var error = new Error(message); error.status = 400; throw error;
   }
@@ -15,6 +16,16 @@
     return time;
   }
   function addDays(value, count) { return new Date(date(value) + count * DAY).toISOString().slice(0, 10); }
+  function hamperDeadline(checkIn) {
+    // Convert 3pm Europe/London to an instant before subtracting 48 elapsed hours.
+    // The afternoon check-in time is unambiguous on both UK clock-change days.
+    var guess = date(checkIn) + 15 * 3600000;
+    var parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(guess));
+    var localHour = Number(parts.find(function(p) { return p.type === 'hour'; }).value);
+    var localMinute = Number(parts.find(function(p) { return p.type === 'minute'; }).value);
+    return guess - (localHour * 60 + localMinute - 15 * 60) * 60000 - 2 * DAY;
+  }
+  function hamperAvailable(checkIn, now) { return (now == null ? Date.now() : now) <= hamperDeadline(checkIn); }
   function nights(from, to, limit) {
     var count = (date(to) - date(from)) / DAY;
     if (!Number.isInteger(count) || count < 1 || count > (limit || 366)) fail('Choose a valid date range.');
@@ -35,7 +46,7 @@
       brand: text(input.brand, 1, 60, 'business name'), currency: 'gbp',
       pricesApproved: input.pricesApproved === true,
       bookingRulesVersion: 2,
-      hamperVersion: 1,
+      hamperVersion: 2,
       openingDate: input.openingDate,
       horizonDays: integer(input.horizonDays, 30, 1095, 'booking horizon'),
       minNights: integer(input.minNights, 1, 28, 'minimum stay'),
@@ -153,5 +164,5 @@
     };
   }
   function money(pence) { return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: pence % 100 ? 2 : 0 }).format(pence / 100); }
-  return { date: date, addDays: addDays, nights: nights, today: today, integer: integer, text: text, validateSettings: validateSettings, selection: selection, nightlyRate: nightlyRate, quote: quote, money: money };
+  return { date: date, addDays: addDays, nights: nights, today: today, integer: integer, text: text, validateSettings: validateSettings, selection: selection, nightlyRate: nightlyRate, quote: quote, money: money, hamperNotice: hamperNotice, hamperDeadline: hamperDeadline, hamperAvailable: hamperAvailable };
 });

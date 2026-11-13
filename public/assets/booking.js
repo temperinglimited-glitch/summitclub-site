@@ -42,7 +42,15 @@
     return result;
   }
   function option(select, value, label) { var o = node('option', label); o.value = value; select.appendChild(o); }
+  function syncHamperNotice() {
+    var arrival = get('booking-in').value, late = false, hampers = get('booking-hamper');
+    try { late = !!arrival && !P.hamperAvailable(arrival, Date.now()); } catch (_) { late = true; }
+    Array.from(hampers.options).forEach(function(o) { o.disabled = !!o.value && late; });
+    if (late && hampers.value) hampers.value = '';
+    get('booking-hamper-notice').textContent = P.hamperNotice + (late ? ' Hampers are unavailable for this arrival date.' : '');
+  }
   function syncDetails() {
+    syncHamperNotice();
     var area = get('booking-child-ages'), previous = Array.from(area.querySelectorAll('select')).map(function(e) { return e.value; });
     area.replaceChildren();
     for (var i = 0; i < Number(get('booking-children').value); i++) {
@@ -54,7 +62,7 @@
     info.replaceChildren(); info.hidden = !hamper;
     if (hamper && h) {
       info.appendChild(node('p', h.description));
-      var list = node('ul'); (h.items || []).forEach(function(item) { list.appendChild(node('li', item.quantity + ' ' + item.name)); }); info.appendChild(list);
+      var list = node('ul'); (h.items || []).forEach(function(item) { list.appendChild(node('li', (item.quantity + ' ' + item.name).trim())); }); info.appendChild(list);
       info.appendChild(node('p', 'Allergens: ' + h.allergens));
       if (!h.reviewed) info.appendChild(node('p', 'Private test: proposed contents, subject to supplier confirmation.'));
       info.appendChild(node('p', 'Tea, coffee, cooking oil, salt and pepper are standard lodge essentials.'));
@@ -241,6 +249,7 @@
   dialog.addEventListener('click', function(event) { if (event.target === dialog) { var rect = dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close(); } });
   form.addEventListener('submit', async function(event) {
     event.preventDefault(); if (!quote || !connected || !paymentsEnabled || working || !form.reportValidity()) return;
+    if (selection().hamperId && !P.hamperAvailable(selection().checkIn, Date.now())) { changed(); message(P.hamperNotice + ' The hamper has been removed; please review the updated quote.'); return; }
     working = true; message(''); updatePay();
     try {
       if (!requestKey) requestKey = crypto.randomUUID();

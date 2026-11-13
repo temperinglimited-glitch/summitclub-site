@@ -1,8 +1,71 @@
 {
   "date": "2026-11-13",
-  "base_commit": "f653efd59b44d93e65130a9ee97ea759f430569a",
+  "base_commit": "e9f346a60566fabe832ed4bfb1eba595a3dc2be8",
   "deployed": false,
+  "hamper_version": 2,
+  "policy_version": "2026-11-13-draft-3",
+  "validation": {
+    "node_tests": {
+      "passed": 78,
+      "failed": 0
+    },
+    "cloudflare_asset_build": "passed",
+    "local_browser": "\u00a330/\u00a345 lists, 48-hour notice and disabled short-notice options, eligible \u00a3645 total verified",
+    "provider_calls": "Simulated tests only; no real payments or emails"
+  },
   "files": [
+    {
+      "path": "config/business.json",
+      "sha256": "ef1b3845af4a6bafa41713357f3576e5d7e86bd56b14d46c73664aaea7c4e26a"
+    },
+    {
+      "path": "config/pricing.json",
+      "sha256": "721bdccc869e5a9dda0e648a190dbc2c0a3e7687f8e3a42d29b5c0d1ad1e674c"
+    },
+    {
+      "path": "public/index.html",
+      "sha256": "f987baf648c0d61d49706970053980bae7dc8b50199b8e3e3d05eab9b8a5eaf9"
+    },
+    {
+      "path": "public/admin.html",
+      "sha256": "0b41d6d1f7be1373bea7f4479313c7f15d772ec21bea27e935b6939cacafafbf"
+    },
+    {
+      "path": "public/assets/booking.js",
+      "sha256": "8ad35662189675124d608ba232d611302cdf1b48c139db2ffe4775fdc34e259c"
+    },
+    {
+      "path": "public/assets/pricing.js",
+      "sha256": "8caf75b907b12823001115e198c587afabcd84a02231d0833083ce133b55e4bf"
+    },
+    {
+      "path": "public/assets/admin.js",
+      "sha256": "3c7708ba982d6af5f8e74448b705911c867318509751a1f9a4cd3925bd056ae5"
+    },
+    {
+      "path": "server/repository-core.mjs",
+      "sha256": "322f59dbec8ee5626081b64a5984c6b9b1cc061ea8f9cb3b097bf9a4419743ab"
+    },
+    {
+      "path": "server/providers.mjs",
+      "sha256": "4e3619bc4185079b549b32541d68601db6a713768b64a543e0a598a887af4056"
+    },
+    {
+      "path": "server/app.mjs",
+      "sha256": "25afbc05328141ccdd301a75f110f7e03fe7675b641b14bac7364bf80194c512"
+    },
+    {
+      "path": "server/policies.mjs",
+      "sha256": "7cbb85fc11b8dadf7d88e8a6ef3f5bc5d531ed52760949a76af0e0483f074f0a"
+    },
+    {
+      "path": "public/booking-terms.html",
+      "sha256": "c8d01f44f32ee347826cc8116c7c61d07abc83ef3f412f78452b82fdcaff9c91"
+    },
+    {
+      "path": "public/privacy.html",
+      "sha256": "90c9bd523eaca69af99d67b68515e555e97f465067fb32596815241a85f1ee76"
+    },
     {
       "path": "public/guest-registration.html",
       "sha256": "a414ea7c6049fe2b6b2116f6f0feadbd2615cf104d978771ae9e763f4e78e5be"
@@ -10,11 +73,22 @@
     {
       "path": "public/assets/registration.js",
       "sha256": "6b5a90dc2cbe6d33bf096e5440b18f35694be3a670a9287fd308b554765d599e"
+    },
+    {
+      "path": "test/pricing.test.mjs",
+      "sha256": "8b475b999c5a035aa4256b0e893d715d65388133cb9376f02b4d465c5d6155e2"
+    },
+    {
+      "path": "test/booking-details.test.mjs",
+      "sha256": "fd306d570dfc6295f296b32656fff3b7be914bf964c7e0158394dfa002530655"
+    },
+    {
+      "path": "BOOKING_PROCESS_UPDATE.md",
+      "sha256": "a1b23ec8c028628e894abd5e12617b2e09b68aeb0bb5ef115f49d1216abc17bb"
+    },
+    {
+      "path": "BREAKFAST_HAMPER_UPDATE.md",
+      "sha256": "67fc9ce6add6ec6b6e8ee9d5914fbba18872ecb9002a4a9068fec4c4a9e61efb"
     }
-  ],
-  "checks": {
-    "existing_asset_tests_passed": 2,
-    "cloudflare_asset_build": "passed",
-    "browser": "Completed panel shows no fields/instructions/stay; failed save remains editable; fresh save returns home automatically."
-  }
+  ]
 }

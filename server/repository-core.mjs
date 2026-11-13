@@ -29,6 +29,7 @@ export class CoreRepository {
     ].join('\n'));
     this.db.prepare('INSERT OR IGNORE INTO settings VALUES(1,?)').run(JSON.stringify(pricing.validateSettings(seed)));
     const previous = this.settings();
+    const previousHamperVersion = previous.hamperVersion || 0;
     if (previous.bookingRulesVersion !== 2) {
       const migrated = pricing.validateSettings({ ...previous, sofaBedPerStayPence: 3000, pricesApproved: false });
       this.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(migrated));
@@ -44,18 +45,18 @@ export class CoreRepository {
     });
     if (renamed) this.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(named));
     const extras = this.settings();
-    if (extras.hamperVersion !== 1) {
+    if (previousHamperVersion < 2) {
       extras.hampers = extras.hampers.map(h => {
         const configured = seed.hampers.find(item => item.id === h.id);
         return configured && ['breakfast-two', 'breakfast-family'].includes(h.id) ? { ...h, name: configured.name, pricePence: configured.pricePence } : h;
       });
-      extras.hamperVersion = 1;
+      extras.hamperVersion = 2;
       this.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(extras));
     }
     // Only replace the original placeholder links. Do not reset owner pricing or custom policies.
     const policies = this.settings();
     const placeholderPolicies = policies.termsUrl === 'https://claude.ai/artifact/XKiY5cFXe3K2sqZ8JmtVn1' && policies.privacyUrl === 'https://claude.ai/artifact/GtF9st82U5NJbu3KEPhbeo';
-    const earlierManagedDraft = policies.termsUrl === TERMS_URL && policies.privacyUrl === PRIVACY_URL && policies.termsVersion === '2026-11-12-draft-1';
+    const earlierManagedDraft = policies.termsUrl === TERMS_URL && policies.privacyUrl === PRIVACY_URL && ['2026-11-12-draft-1', '2026-11-12-draft-2'].includes(policies.termsVersion);
     if (placeholderPolicies || earlierManagedDraft) {
       policies.termsUrl = TERMS_URL; policies.privacyUrl = PRIVACY_URL; policies.termsVersion = POLICY_VERSION;
       this.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(policies));

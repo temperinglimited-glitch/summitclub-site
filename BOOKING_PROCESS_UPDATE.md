@@ -1,6 +1,6 @@
-# Summit Club booking update — 12 November 2026
+# Summit Club booking update — 13 November 2026
 
-Prepared against GitHub main commit `5a10836f54301d1026d4a9be94e5089527182cba`. This is a source update for the existing repository, not a deployment. Keep the existing Cloudflare account, Worker, secrets, Access policy and Durable Object namespace.
+Prepared against GitHub main commit `e9f346a60566fabe832ed4bfb1eba595a3dc2be8`. This is a source update for the existing repository, not a deployment. Keep the existing Cloudflare account, Worker, secrets, Access policy and Durable Object namespace.
 
 ## What is included
 
@@ -17,25 +17,16 @@ Prepared against GitHub main commit `5a10836f54301d1026d4a9be94e5089527182cba`. 
 
 Each hamper is ingredients for **one generous breakfast**, ready to cook in the lodge. Stock before arrival; chilled items go in the fridge. Charge **per hamper**, never automatically per guest or per night. Quantity defaults to one and can be changed explicitly.
 
-| Item | For two — £35 | Family, serves four — £55 |
+| Option | Price per hamper | Contents |
 |---|---|---|
-| Pork sausages | 4 | 8 |
-| Back bacon | 4 rashers | 8 rashers |
-| Free-range eggs | 6 | 12 |
-| Soda farls | 2 | 4 |
-| Potato bread | 2 pieces | 4 pieces |
-| Tomatoes | 2 | 4 |
-| Mushrooms | 150g | 250g |
-| Fresh scones or pastries | 2 | 4 |
-| Juice | 1 litre | 1 litre |
-| Milk | 1 litre | 1 litre |
-| Butter | Small pack | Small pack |
-| Individual jams | 2 | 4 |
-| Fresh fruit | 2 pieces | 4 pieces |
+| Small · for two | £30 | Sausages, bacon, eggs, baked beans, white bread, butter, jam, milk and orange juice. |
+| Large · for four | £45 | The small hamper’s contents, plus tomatoes and mushrooms. |
+
+Breakfast hampers require at least **48 hours’ notice before the 3pm check-in**, using Northern Ireland local time. The form disables hamper options inside that window, and the server rejects new late orders before payment. This does not change the agreed contents or prices of earlier bookings.
 
 Tea, coffee, cooking oil, salt and pepper are standard lodge essentials. No supplier is named publicly. Contents remain proposed until the supplier/products are confirmed. Do not infer an allergen declaration from this ingredient list: obtain the actual product labels and cross-contact information. Live hamper purchases remain unavailable until the description, allergen information and review flag are complete.
 
-Menu and review information: `config/business.json`. Default prices: `config/pricing.json`. A one-time `hamperVersion: 1` migration applies the supplied £35/£55 prices to the two known hamper options in saved settings; other lodge rates and all historical booking quotes remain unchanged. Subsequent owner price edits are preserved. Form totals, server totals, Stripe line amounts and email totals use the same quote.
+Menu and review information: `config/business.json`. Default prices: `config/pricing.json`. A one-time `hamperVersion: 2` migration applies the revised £30/£45 prices to the two known hamper options in saved settings; other lodge rates and all historical booking quotes remain unchanged. Subsequent owner price edits are preserved. Form totals, server totals, Stripe line amounts and email totals use the same quote.
 
 ## Choices used in the draft terms
 
@@ -48,9 +39,9 @@ The draft is not legal sign-off. The older external policy pages could not be re
 
 ## Upload to the existing GitHub repository
 
-1. Download and unzip `Summit_Club_Booking_Process_Update_v2.zip`.
+1. Download and unzip `Summit_Club_Breakfast_Update_30_45.zip`.
 2. In `temperinglimited-glitch/summitclub-site`, use **Add file → Upload files** at the repository root on `main`.
-3. Drag the extracted **config, server, public, cloudflare, scripts and test folders**, plus this guide and the verification manifest, into the upload area. Keep the folder paths. Commit them together, so the new form and validation arrive in one release. Prefer file upload to manually pasting code.
+3. Drag the extracted **config, server, public and test folders**, plus this guide and the verification manifest, into the upload area. Keep the folder paths. Commit them together, so the new form and validation arrive in one release. Prefer file upload to manually pasting code.
 4. Wait for the correct `summitclub-booking-test` Worker build to succeed. Build command remains `npm run build:cloudflare`; deploy command remains `npx wrangler deploy --config wrangler.test.jsonc`.
 5. Hard-refresh `https://test.summitclub.co`. Check the form, both policy links, a fresh sandbox booking, the confirmation attachment and its registration link. Check the owner copy and dashboard. Confirm no new email failures appear.
 
@@ -60,7 +51,7 @@ Known placeholder policy links in saved settings migrate to `/booking-terms.html
 
 ## Information still needed before live bookings
 
-The supplied business details are now entered in `config/business.json`: Tempering NI Limited t/a Summit Club; company NI717654; VAT 478976016; telephone +353 85 712 6407. Registered office and correspondence address: 10C Clontafleece Road, Burren, BT34 3QS. These details were supplied by the owner; registry/VAT verification has not been performed. The current terms version is `2026-11-12-draft-2`; existing managed draft settings upgrade automatically without changing historical bookings. Check that `bookings@summitclub.co` and `hello@summitclub.co` forward and can receive replies. Keep `reviewedForLiveBookings` false until the business details and the actual terms/privacy/provider arrangements are reviewed. Live checkout is blocked while those items remain incomplete; private sandbox testing continues.
+The supplied business details are now entered in `config/business.json`: Tempering NI Limited t/a Summit Club; company NI717654; VAT 478976016; telephone +353 85 712 6407. Registered office and correspondence address: 10C Clontafleece Road, Burren, BT34 3QS. These details were supplied by the owner; registry/VAT verification has not been performed. The current terms version is `2026-11-13-draft-3`; existing managed draft settings upgrade automatically without changing historical bookings. Check that `bookings@summitclub.co` and `hello@summitclub.co` forward and can receive replies. Keep `reviewedForLiveBookings` false until the business details and the actual terms/privacy/provider arrangements are reviewed. Live checkout is blocked while those items remain incomplete; private sandbox testing continues.
 
 Have a Northern Ireland adviser review the cancellation/fair-loss wording, consumer remedies, assistance/access provisions, visitor-register/travel-document requirements and the privacy notice against the real business. Confirm any food-business registration and handling requirements with the local authority, as applicable. Confirm suppliers, cold-chain/storage, use-by instructions and exact allergens; supply allergen information both before purchase and with the hamper. Do not label a hamper allergy-safe or vegetarian without verified products and handling arrangements.
 

@@ -12,7 +12,7 @@ test('mixed-season stays charge each occupied night, with exclusive departure', 
 test('group supplements, sofa bed and hamper quantities have exact integer totals', () => {
   const q = quote({ adults: 2, children: 3, sofaBed: true, hamperId: 'breakfast-family', hamperQuantity: 2 });
   assert.equal(q.accommodationPence, 50000); assert.equal(q.guestSupplementPence, 15000);
-  assert.equal(q.sofaBedPence, 3000); assert.equal(q.hamperPence, 11000); assert.equal(q.totalPence, 79000);
+  assert.equal(q.sofaBedPence, 3000); assert.equal(q.hamperPence, 9000); assert.equal(q.totalPence, 77000);
   assert.equal(quote({ adults: 1 }).guestSupplementPence, 0);
 });
 test('peak ranges, summer, weekends and lodge-specific overrides combine correctly', () => {

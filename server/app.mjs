@@ -46,6 +46,7 @@ export function createApp({ repo, stripe, mailer, runtime, recovery = null, cloc
   }
   function findQuote(input) {
     const settings = repo.settings(), normalized = pricing.selection(settings, input, today());
+    if (normalized.hamperId && !pricing.hamperAvailable(normalized.checkIn, clock())) throw new BookingError(pricing.hamperNotice + ' Please remove the hamper or choose a later arrival date.');
     const oneBedroomRates = repo.oneBedroomRates(normalized.checkIn, normalized.checkOut);
     const nights = pricing.nights(normalized.checkIn, normalized.checkOut);
     const candidates = settings.lodges.filter(l => normalized.lodgeId === 'any' || l.id === normalized.lodgeId)

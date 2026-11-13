@@ -27,13 +27,13 @@
   "hampers": [
     {
       "id": "breakfast-two",
-      "name": "Breakfast hamper for two",
-      "pricePence": 3500
+      "name": "Small breakfast hamper · for two",
+      "pricePence": 3000
     },
     {
       "id": "breakfast-family",
-      "name": "Family breakfast hamper · serves four",
-      "pricePence": 5500
+      "name": "Large breakfast hamper · for four",
+      "pricePence": 4500
     }
   ],
   "peakRanges": [
@@ -48,6 +48,6 @@
   ],
   "termsUrl": "/booking-terms.html",
   "privacyUrl": "/privacy.html",
-  "termsVersion": "2026-11-12-draft-2",
-  "hamperVersion": 1
+  "termsVersion": "2026-11-13-draft-3",
+  "hamperVersion": 2
 }

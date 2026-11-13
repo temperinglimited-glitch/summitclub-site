@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
 import details from '../public/assets/booking-details.js';
-import { EmailGateway, bookingEmailContent } from '../server/providers.mjs';
+import pricing from '../public/assets/pricing.js';
+import { EmailGateway, StripeGateway, bookingEmailContent } from '../server/providers.mjs';
 import { policySnapshot, POLICY_VERSION } from '../server/policies.mjs';
 import { CoreRepository } from '../server/repository-core.mjs';
 import { fixture, selection, guestFields, seed } from './helpers.mjs';
@@ -39,13 +40,64 @@ test('hamper prices are per hamper, independent of party size and nights, with t
   const f = fixture(t), original = checkoutValue(f, { hamperId: 'breakfast-two', hamperQuantity: 3 });
   assert.equal((await f.call('/api/checkout', { method: 'POST', value: original })).status, 200);
   const booking = f.repo.byRequest(original.requestKey);
-  assert.equal(booking.quote.hamperPence, 10500); assert.equal(booking.quote.nights, 2);
+  assert.equal(booking.quote.hamperPence, 9000); assert.equal(booking.quote.nights, 2);
   assert.equal(booking.data.details.hamperFulfilment, 'before-arrival');
-  assert.equal(booking.data.hamperInformation.items.find(i => i.name === 'Free-range eggs').quantity, '6');
+  assert.deepEqual(booking.data.hamperInformation.items.map(i => i.name), ['Sausages', 'Bacon', 'Eggs', 'Baked beans', 'White bread', 'Butter', 'Jam', 'Milk', 'Orange juice']);
+  assert.ok(booking.data.hamperInformation.items.every(i => i.quantity === ''));
   const family = f.app.findQuote(selection({ lodgeId: 'lodge-two', adults: 2, children: 2, hamperId: 'breakfast-family', hamperQuantity: 1 }));
-  assert.equal(family.hamperPence, 5500);
+  assert.equal(family.hamperPence, 4500);
+  let stripeFields;
+  const stripe = new StripeGateway('sk_test_fake', async (_, options) => {
+    stripeFields = new URLSearchParams(options.body);
+    return new Response('{"id":"cs_test_fake","url":"https://checkout.stripe.com/c/pay/fake"}', { status: 200 });
+  });
+  await stripe.create(booking, f.runtime.baseUrl, 'test-receipt');
+  assert.equal(stripeFields.get('line_items[1][price_data][unit_amount]'), '9000');
+  assert.match(stripeFields.get('line_items[1][price_data][product_data][name]'), /Small breakfast hamper/);
   const changed = structuredClone(original); changed.details.requests = 'A different request';
   assert.equal((await f.call('/api/checkout', { method: 'POST', value: changed })).status, 409);
+});
+test('£30/£45 menus upgrade saved settings once and preserve historical prices and contents', async t => {
+  const f = fixture(t), old = structuredClone(f.repo.settings());
+  old.hamperVersion = 1; old.winterPence = 32100;
+  old.hampers = [{ id: 'breakfast-two', name: 'Breakfast hamper for two', pricePence: 3500 }, { id: 'breakfast-family', name: 'Family breakfast hamper', pricePence: 5500 }];
+  f.repo.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(old));
+  const booking = await confirm(f, checkoutValue(f, { hamperId: 'breakfast-family', hamperQuantity: 1 }));
+  const historicData = { ...booking.data, hamperInformation: { description: 'Earlier hamper contents', items: [{ name: 'Pork sausages', quantity: '8' }], allergens: 'Earlier supplied information', reviewed: false } };
+  f.repo.db.prepare('UPDATE bookings SET data_json=? WHERE id=?').run(JSON.stringify(historicData), booking.id);
+  const upgraded = new CoreRepository(f.repo.db, seed), settings = upgraded.settings();
+  assert.equal(settings.hamperVersion, 2); assert.deepEqual(settings.hampers.map(h => h.pricePence), [3000, 4500]);
+  assert.equal(settings.winterPence, 32100);
+  const historic = upgraded.get(booking.id);
+  assert.equal(historic.quote.hamperPence, 5500); assert.equal(historic.quote.hamperName, 'Family breakfast hamper');
+  assert.deepEqual(historic.quote, booking.quote); assert.deepEqual(historic.data, historicData);
+  assert.match(bookingEmailContent({ kind: 'guest' }, historic, 'owner@example.com').text, /8 Pork sausages/);
+  upgraded.saveSettings({ ...settings, hampers: settings.hampers.map(h => ({ ...h, pricePence: h.pricePence + 100 })) });
+  assert.deepEqual(new CoreRepository(f.repo.db, seed).settings().hampers.map(h => h.pricePence), [3100, 4600]);
+  // Very early databases also pass through the bedroom-rules upgrade; that must not skip the menu upgrade.
+  const early = fixture(t), legacy = { ...old, bookingRulesVersion: 1 }; delete legacy.hamperVersion;
+  early.repo.db.prepare('UPDATE settings SET json=? WHERE id=1').run(JSON.stringify(legacy));
+  assert.deepEqual(new CoreRepository(early.repo.db, seed).settings().hampers.map(h => h.pricePence), [3000, 4500]);
+});
+test('48-hour hamper notice follows 3pm Northern Ireland check-in and cannot be bypassed at checkout', async t => {
+  assert.equal(pricing.hamperDeadline('2026-12-10'), Date.parse('2026-12-08T15:00:00Z'));
+  assert.equal(pricing.hamperDeadline('2027-07-05'), Date.parse('2027-07-03T14:00:00Z'));
+  assert.equal(pricing.hamperDeadline('2026-10-26'), Date.parse('2026-10-24T15:00:00Z'));
+  const f = fixture(t), cutoff = pricing.hamperDeadline('2026-12-10');
+  assert.equal(pricing.hamperAvailable('2026-12-10', cutoff), true);
+  assert.equal(pricing.hamperAvailable('2026-12-10', cutoff + 1), false);
+  f.advance((cutoff - f.now() * 1000) / 1000);
+  const { value, response } = await f.start({ hamperId: 'breakfast-two', hamperQuantity: 1 });
+  assert.equal(response.status, 200);
+  f.advance(1);
+  const late = selection({ lodgeId: 'lodge-two', hamperId: 'breakfast-two', hamperQuantity: 1 });
+  const quote = await f.call('/api/quote', { method: 'POST', value: late });
+  assert.equal(quote.status, 400); assert.match(quote.body.error, /48 hours/);
+  assert.equal((await f.call('/api/checkout', { method: 'POST', value: { ...value, lodgeId: 'lodge-two', requestKey: randomUUID() } })).status, 400);
+  assert.equal(f.stripe.creates, 1);
+  // A request already placed before the cutoff can safely resume its existing checkout.
+  assert.equal((await f.call('/api/checkout', { method: 'POST', value })).status, 200);
+  assert.equal((await f.call('/api/quote', { method: 'POST', value: selection({ lodgeId: 'lodge-two' }) })).status, 200);
 });
 test('accepted policy snapshot and paid quote survive later settings changes and registration edits', async t => {
   const f = fixture(t), booking = await confirm(f, checkoutValue(f));
@@ -88,8 +140,9 @@ test('guest emails attach the exact stored terms and include private registratio
   let payload;
   const mailer = new EmailGateway({ from: 'Summit Club <bookings@summitclub.co>', ownerEmail: 'owner@example.com', apiKey: 'fake-test-key' }, async (_, options) => { payload = JSON.parse(options.body); return new Response('{"id":"email_fake"}', { status: 200 }); });
   await mailer.send({ id: 'test-message', kind: 'guest' }, booking, { registrationUrl });
-  assert.match(payload.html, /COMPLETE GUEST REGISTRATION/); assert.match(payload.text, /6 Free-range eggs/); assert.match(payload.text, /stocked before arrival/);
+  assert.match(payload.html, /COMPLETE GUEST REGISTRATION/); assert.match(payload.text, /Sausages; Bacon; Eggs; Baked beans/); assert.ok(!payload.text.includes('6 Free-range eggs')); assert.match(payload.text, /stocked before arrival/);
   assert.ok(payload.text.includes(registrationUrl));
+  assert.match(payload.text, /48 hours/);
   const attachment = Buffer.from(payload.attachments[0].content, 'base64').toString('utf8');
   assert.ok(attachment.endsWith(booking.data.policySnapshot.text)); assert.ok(attachment.includes(booking.id));
   assert.ok(!payload.html.includes('1 Test Street'));

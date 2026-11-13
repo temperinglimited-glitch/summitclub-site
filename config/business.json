@@ -14,120 +14,98 @@
       "serves": 2,
       "items": [
         {
-          "name": "Pork sausages",
-          "quantity": "4"
+          "name": "Sausages",
+          "quantity": ""
         },
         {
-          "name": "Back bacon",
-          "quantity": "4 rashers"
+          "name": "Bacon",
+          "quantity": ""
         },
         {
-          "name": "Free-range eggs",
-          "quantity": "6"
+          "name": "Eggs",
+          "quantity": ""
         },
         {
-          "name": "Soda farls",
-          "quantity": "2"
+          "name": "Baked beans",
+          "quantity": ""
         },
         {
-          "name": "Potato bread",
-          "quantity": "2 pieces"
-        },
-        {
-          "name": "Tomatoes",
-          "quantity": "2"
-        },
-        {
-          "name": "Mushrooms",
-          "quantity": "150g"
-        },
-        {
-          "name": "Fresh scones or pastries",
-          "quantity": "2"
-        },
-        {
-          "name": "Juice",
-          "quantity": "1 litre"
-        },
-        {
-          "name": "Milk",
-          "quantity": "1 litre"
+          "name": "White bread",
+          "quantity": ""
         },
         {
           "name": "Butter",
-          "quantity": "Small pack"
+          "quantity": ""
         },
         {
-          "name": "Individual jams",
-          "quantity": "2"
+          "name": "Jam",
+          "quantity": ""
         },
         {
-          "name": "Fresh fruit",
-          "quantity": "2 pieces"
+          "name": "Milk",
+          "quantity": ""
+        },
+        {
+          "name": "Orange juice",
+          "quantity": ""
         }
       ],
       "allergens": "Exact product ingredients and allergen information are awaiting supplier confirmation. Contact us about allergies before purchase. Unavailable for live purchase until this information is confirmed.",
-      "reviewed": false
+      "reviewed": false,
+      "notice": "Breakfast hampers require at least 48 hours’ notice before your 3pm check-in."
     },
     "breakfast-family": {
       "description": "Ingredients for one generous breakfast for four, ready to cook in your lodge. Stocked before arrival, with chilled items placed in the fridge. Charged per hamper, not per person or per night.",
       "serves": 4,
       "items": [
         {
-          "name": "Pork sausages",
-          "quantity": "8"
+          "name": "Sausages",
+          "quantity": ""
         },
         {
-          "name": "Back bacon",
-          "quantity": "8 rashers"
+          "name": "Bacon",
+          "quantity": ""
         },
         {
-          "name": "Free-range eggs",
-          "quantity": "12"
+          "name": "Eggs",
+          "quantity": ""
         },
         {
-          "name": "Soda farls",
-          "quantity": "4"
-        },
-        {
-          "name": "Potato bread",
-          "quantity": "4 pieces"
+          "name": "Baked beans",
+          "quantity": ""
         },
         {
           "name": "Tomatoes",
-          "quantity": "4"
+          "quantity": ""
         },
         {
           "name": "Mushrooms",
-          "quantity": "250g"
+          "quantity": ""
         },
         {
-          "name": "Fresh scones or pastries",
-          "quantity": "4"
-        },
-        {
-          "name": "Juice",
-          "quantity": "1 litre"
-        },
-        {
-          "name": "Milk",
-          "quantity": "1 litre"
+          "name": "White bread",
+          "quantity": ""
         },
         {
           "name": "Butter",
-          "quantity": "Small pack"
+          "quantity": ""
         },
         {
-          "name": "Individual jams",
-          "quantity": "4"
+          "name": "Jam",
+          "quantity": ""
         },
         {
-          "name": "Fresh fruit",
-          "quantity": "4 pieces"
+          "name": "Milk",
+          "quantity": ""
+        },
+        {
+          "name": "Orange juice",
+          "quantity": ""
         }
       ],
       "allergens": "Exact product ingredients and allergen information are awaiting supplier confirmation. Contact us about allergies before purchase. Unavailable for live purchase until this information is confirmed.",
-      "reviewed": false
+      "reviewed": false,
+      "notice": "Breakfast hampers require at least 48 hours’ notice before your 3pm check-in."
     }
   },
   "lodgeEssentials": [

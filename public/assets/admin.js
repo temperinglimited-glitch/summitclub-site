@@ -65,7 +65,7 @@
         if (b.data.details) {
           if (b.data.details.childAges.length) detail.appendChild(node('small', 'Child ages on arrival: ' + b.data.details.childAges.join(', ')));
           if (b.data.details.hamperFulfilment) detail.appendChild(node('small', 'Hamper: stock before arrival; chilled items in fridge.'));
-          if (b.data.hamperInformation && b.data.hamperInformation.items) detail.appendChild(node('small', b.data.hamperInformation.items.map(function(i) { return i.quantity + ' ' + i.name; }).join('; ')));
+          if (b.data.hamperInformation && b.data.hamperInformation.items) detail.appendChild(node('small', b.data.hamperInformation.items.map(function(i) { return (i.quantity + ' ' + i.name).trim(); }).join('; ')));
           if (b.data.details.requests) detail.appendChild(node('small', 'Request · not yet agreed: ' + b.data.details.requests));
         }
         if (b.status === 'confirmed') {

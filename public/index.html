@@ -462,6 +462,7 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
         <div class="booking-hamper">
           <div><p class="label">A slow morning</p><h3>Breakfast, waiting for you.</h3><p>Ingredients for one generous breakfast, ready to cook in your lodge. Chilled items are placed in the fridge before arrival.</p></div>
           <label class="booking-field">Hamper<select id="booking-hamper" name="hamperId"><option value="">No breakfast hamper</option></select></label>
+          <p class="booking-help" id="booking-hamper-notice">Breakfast hampers require at least 48 hours’ notice before your 3pm check-in.</p>
           <label class="booking-field">Number of hampers · charged per hamper<input type="number" min="1" max="28" value="1" id="booking-hamper-quantity" name="hamperQuantity" disabled></label>
           <div id="booking-hamper-info" class="booking-help" hidden></div>
         </div>
@@ -527,9 +528,9 @@ dialog.dates::backdrop{background:rgba(20,28,20,.6)}
 })();
 </script>
 
-<script>window.SUMMIT_BOOKING_DEFAULTS={"brand":"Summit Club","currency":"gbp","pricesApproved":false,"bookingRulesVersion":2,"hamperVersion":1,"openingDate":"2026-12-01","horizonDays":540,"minNights":2,"maxNights":28,"baseGuests":2,"winterPence":25000,"standardPence":36000,"peakPence":42000,"weekendSupplementPence":0,"extraGuestPerNightPence":2500,"sofaBedPerStayPence":3000,"termsVersion":"2026-11-12-draft-2","lodges":[{"id":"lodge-one","name":"Lodge 1 — Roscaire"},{"id":"lodge-two","name":"Lodge 2 — Finn"}],"hampers":[{"id":"breakfast-two","name":"Breakfast hamper for two","pricePence":3500},{"id":"breakfast-family","name":"Family breakfast hamper · serves four","pricePence":5500}],"peakRanges":[{"from":"2027-02-11","to":"2027-02-15"},{"from":"2027-03-25","to":"2027-04-05"}],"termsUrl":"/booking-terms.html","privacyUrl":"/privacy.html"};</script>
-<script src="assets/pricing.js?v=20261112-3" defer></script>
+<script>window.SUMMIT_BOOKING_DEFAULTS={"brand":"Summit Club","currency":"gbp","pricesApproved":false,"bookingRulesVersion":2,"hamperVersion":2,"openingDate":"2026-12-01","horizonDays":540,"minNights":2,"maxNights":28,"baseGuests":2,"winterPence":25000,"standardPence":36000,"peakPence":42000,"weekendSupplementPence":0,"extraGuestPerNightPence":2500,"sofaBedPerStayPence":3000,"termsVersion":"2026-11-13-draft-3","lodges":[{"id":"lodge-one","name":"Lodge 1 — Roscaire"},{"id":"lodge-two","name":"Lodge 2 — Finn"}],"hampers":[{"id":"breakfast-two","name":"Small breakfast hamper · for two","pricePence":3000},{"id":"breakfast-family","name":"Large breakfast hamper · for four","pricePence":4500}],"peakRanges":[{"from":"2027-02-11","to":"2027-02-15"},{"from":"2027-03-25","to":"2027-04-05"}],"termsUrl":"/booking-terms.html","privacyUrl":"/privacy.html"};</script>
+<script src="assets/pricing.js?v=20261113-breakfast-3" defer></script>
 <script src="assets/booking-details.js?v=20261112-3" defer></script>
-<script src="assets/booking.js?v=20261112-3" defer></script>
+<script src="assets/booking.js?v=20261113-breakfast-3" defer></script>
 </body></html>
 
