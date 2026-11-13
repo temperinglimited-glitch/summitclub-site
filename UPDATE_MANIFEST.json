@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-13",
+  "base_commit": "e66f4d623f7a7084c29f5a3e6c59b9084bb381fc",
+  "deployed": false,
+  "files": [
+    {
+      "path": "public/guest-registration.html",
+      "sha256": "6c61dcd1744e975e8f388330196cee39b624625b36cd03780e0b359a13cb2b5d"
+    },
+    {
+      "path": "public/assets/registration.js",
+      "sha256": "005c129d8b47ef2c400ec23ff1f5a9a4f1769c69243ebb38ca055c99ec855ca6"
+    }
+  ],
+  "validation": {
+    "existing_asset_checks_passed": 2,
+    "cloudflare_asset_build": "passed",
+    "local_browser_success": "Thank-you message shown; form hidden; returned automatically to index.html",
+    "local_browser_failure": "Validation error displayed; form remained visible and save button re-enabled"
+  }
+}
