@@ -1,21 +1,20 @@
-# Guest registration thank-you update — 13 November 2026
+# Registration completion panel — 13 November 2026
 
-After a successful save, the registration form is hidden and a clear “Thank you” message is shown. Guests return to index.html after five seconds. “Return home now” is also available. Validation or save failures keep the form open with its error message; no redirect is started.
+The completed panel now shows only the Summit Club label, “Thank you.” heading, “Your guest register has been saved. We will check it with you on arrival.”, the questions/corrections email and “Back to Summit Club” button.
 
-This package changes only:
+All guest input fields are removed, and the instructions and lodge/date summary are hidden after a confirmed successful save. A fresh submission returns to index.html after five seconds, as requested earlier. Reopening an already-completed registration shows the same clean panel; it does not restart the automatic redirect. Corrections can be requested through bookings@summitclub.co. A failed save leaves the form open with the error.
+
+Upload these two files together:
 - public/guest-registration.html
 - public/assets/registration.js
 
-Upload
-1. Unzip Summit_Club_Registration_Thank_You_Update.zip.
-2. Open https://github.com/temperinglimited-glitch/summitclub-site on main.
-3. At the repository root, choose Add file → Upload files.
-4. Drag the extracted public folder into the upload area, preserving its paths.
-5. Commit both files together and wait for the active Cloudflare test Worker build to succeed.
-6. Open a private guest-registration link, save it successfully and confirm the thank-you message appears before returning to the home page.
+1. Unzip Summit_Club_Registration_Complete_Panel_Update.zip.
+2. Open https://github.com/temperinglimited-glitch/summitclub-site and select main.
+3. At the repository root choose Add file → Upload files.
+4. Drag in the extracted public folder, preserving its internal paths.
+5. Commit changes. Wait for the correct summitclub-booking-test Cloudflare build to succeed.
+6. Refresh or reopen a private guest-registration link. Submit an incomplete register to check the confirmation; reopen a completed one to check that no fields remain visible.
 
-The new registration.js asset URL has a fresh version so browsers request the updated script. No settings, secrets, database, payment code or booking terms are changed. There is no new deploy command.
+The previous completion update was not present in the two files on GitHub main when checked at commit f653efd59b44d93e65130a9ee97ea759f430569a; those files still used the original visible-form behaviour. This package includes all needed changes and a fresh registration.js URL version. The HTML and JavaScript must both be uploaded.
 
-Validation: both existing asset checks passed; Cloudflare asset build passed; local browser checks confirmed the success message, hidden form, automatic home-page return and failed-save recovery. Synthetic guest details only; no real emails or payments sent.
-
-Source: the two original files matched GitHub main at commit e66f4d623f7a7084c29f5a3e6c59b9084bb381fc before editing. The update has been prepared locally and has not been uploaded or deployed.
+Validation: the two existing asset checks and Cloudflare asset build passed. Local browser checks confirmed a clean panel on reopening an existing register, validation-error recovery, a successful fresh save with zero remaining guest fields, and the automatic return home. Only synthetic local bookings were used; no real payments or emails were sent. This package is prepared locally and has not been uploaded/deployed. It does not change secrets, settings, storage, payment code or booking terms.
