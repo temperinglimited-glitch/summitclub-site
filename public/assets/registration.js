@@ -4,7 +4,7 @@
   var id = new URLSearchParams(location.search).get('id'), token = new URLSearchParams(location.hash.slice(1)).get('token'), key = 'summit-register-' + id;
   try { if (token) sessionStorage.setItem(key, token); else token = sessionStorage.getItem(key); } catch (_) {}
   if (location.hash) history.replaceState(null, '', location.pathname + location.search);
-  var entries = [], busy = false;
+  var entries = [], busy = false, complete = false;
   function node(tag, text) { var e = document.createElement(tag); if (text != null) e.textContent = text; return e; }
   function field(area, title, value, max, optional) {
     var label = node('label', title), input = node('input'); label.className = 'booking-field'; input.value = value || ''; input.maxLength = max; input.required = !optional; label.appendChild(input); area.appendChild(label); return input;
@@ -17,11 +17,25 @@
     select.addEventListener('change', postcode); postcode(); return fields;
   }
   function readAddress(fields) { var value = {}; Object.keys(fields).forEach(function(k) { value[k] = fields[k].value; }); return value; }
+  function showComplete(returnHome) {
+    complete = true;
+    get('registration-form').hidden = true;
+    get('registration-guests').replaceChildren(); entries = [];
+    get('registration-stay').textContent = ''; get('registration-stay').hidden = true;
+    get('registration-heading').textContent = 'Thank you.';
+    document.title = 'Registration complete · Summit Club';
+    get('registration-message').textContent = 'Your guest register has been saved. We will check it with you on arrival.';
+    get('registration-home').textContent = 'Back to Summit Club';
+    get('registration-message').focus();
+    get('registration-message').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (returnHome) setTimeout(function() { location.replace('index.html'); }, 5000);
+  }
   function render(data) {
+    if (data.registration) { showComplete(false); return; }
     get('registration-stay').textContent = data.lodge + ' · ' + data.checkIn + ' to ' + data.checkOut;
     if (!data.childAgesKnown) throw new Error('Please contact us with the children’s ages on arrival so we can prepare your register.');
-    get('registration-message').textContent = data.registration ? 'Your saved details are below. You can make corrections and save again.' : 'A few details for the visitor register, before you arrive.';
-    var existing = data.registration ? data.registration.guests : [];
+    get('registration-message').textContent = 'A few details for the visitor register, before you arrive.';
+    var existing = [];
     for (var i = 0; i < data.count; i++) {
       var value = existing[i] || (i === 0 ? data.leadGuest : {}), area = node('fieldset'); area.className = 'registration-entry';
       area.appendChild(node('legend', i === 0 ? 'Lead guest · 18+' : 'Guest ' + (i + 1) + ' · aged 16 or over'));
@@ -55,14 +69,15 @@
     var data = await response.json(); if (!response.ok) throw new Error(data.error || 'Please try again.'); return data;
   }
   get('registration-form').addEventListener('submit', async function(event) {
-    event.preventDefault(); if (busy || !this.reportValidity()) return;
+    event.preventDefault(); if (busy || complete || !this.reportValidity()) return;
     busy = true; get('registration-save').disabled = true; get('registration-error').hidden = true;
     try {
       var guests = entries.map(function(e) { return { name: e.name.value, nationality: e.nationality.value, address: readAddress(e.address), travelDetailsRequired: e.travel.value === 'yes', documentNumber: e.documentNumber.value, documentIssuePlace: e.documentIssuePlace.value, nextDestination: e.nextDestination.value }; });
-      await api('PUT', { guests: guests, accuracyConfirmed: get('registration-accurate').checked });
-      get('registration-message').textContent = 'Thank you. Your guest register has been saved. We will check it with you on arrival.'; get('registration-message').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      var result = await api('PUT', { guests: guests, accuracyConfirmed: get('registration-accurate').checked });
+      if (result.saved !== true) throw new Error('We could not confirm that your guest details were saved. Please try again.');
+      showComplete(true);
     } catch (error) { get('registration-error').textContent = error.message; get('registration-error').hidden = false; }
-    finally { busy = false; get('registration-save').disabled = false; }
+    finally { busy = false; get('registration-save').disabled = complete; }
   });
   (async function() { try { if (!id || !token) throw new Error('Use the private registration link in your confirmation email.'); render(await api('GET')); } catch (error) { get('registration-message').textContent = error.message; } })();
 })();
